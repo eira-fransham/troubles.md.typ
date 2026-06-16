@@ -1,0 +1,412 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Never Fork Again - troubles.md</title></head><body><style>@layer components {
+  .expressive-code {
+    position: relative;
+    font-family: var(
+      --ec-uiFontFamily,
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      sans-serif
+    );
+    font-size: var(--ec-uiFontSize, 0.9rem);
+    font-weight: var(--ec-uiFontWeight, 400);
+    line-height: var(--ec-uiLineHeight, 1.65);
+    text-size-adjust: none;
+    -webkit-text-size-adjust: none;
+  }
+
+  .expressive-code *:not(:is(svg, svg *)) {
+    box-sizing: border-box;
+  }
+
+  .expressive-code::selection {
+    background: var(--ec-uiSelBg, var(--ec-codeBg, #0d1117));
+    color: var(--ec-uiSelFg, currentColor);
+  }
+
+  .expressive-code pre {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    border: var(--ec-borderWd, 1.5px) solid
+      var(--ec-borderCol, rgba(148, 163, 184, 0.25));
+    border-radius: calc(
+      var(--ec-borderRad, 0.3rem) + var(--ec-borderWd, 1.5px)
+    );
+    background: var(--ec-codeBg, #0d1117);
+    color: var(--ec-codeFg, #c9d1d9);
+    overflow-x: auto;
+    position: relative;
+    z-index: 1;
+    container-type: inline-size;
+  }
+
+  .expressive-code pre:focus-visible {
+    outline: 3px solid var(--ec-focusBorder, #3b82f6);
+    outline-offset: -3px;
+  }
+
+  .expressive-code pre > code {
+    all: unset;
+    display: block;
+    flex: 1 0 100%;
+    padding: var(--ec-codePadBlk, 0.5rem) 0;
+    color: var(--ec-codeFg, #c9d1d9);
+    font-family: var(
+      --ec-codeFontFamily,
+      ui-monospace,
+      SFMono-Regular,
+      Menlo,
+      Monaco,
+      Consolas,
+      "Liberation Mono",
+      "Courier New",
+      monospace
+    );
+    font-size: var(--ec-codeFontSize, 0.85rem);
+    font-weight: var(--ec-codeFontWeight, 400);
+    line-height: var(--ec-codeLineHeight, 1.35);
+  }
+
+  .expressive-code pre > code::selection {
+    background: var(--ec-codeSelBg, rgba(56, 189, 248, 0.35));
+    color: inherit;
+  }
+
+  .expressive-code pre.wrap .ec-line .code {
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    min-width: min(20ch, var(--ecMaxLine, 20ch));
+  }
+
+  /* When lines are allowed to wrap, the absolute overlay can overlap
+     wrapped text. Disable the overlay in wrap mode and rely on per-slot
+     borders for guides (these are handled by .indent-slot). */
+  .expressive-code pre.wrap .ec-line .code .indent-overlay {
+    display: none;
+  }
+
+  .expressive-code pre.wrap .ec-line .code::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    /* use the code line-height times the element font-size to match one line */
+    height: calc(var(--ec-codeLineHeight, 1.65) * 1em);
+    width: max(0px, calc(var(--ecIndent, 0) - 2px));
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+      to right,
+      transparent 0,
+      transparent calc(var(--ec-indentStep, 4ch) - 1px),
+      var(--ec-indentGuideCol, rgba(148, 163, 184, 0.35))
+        calc(var(--ec-indentStep, 4ch) - 1px),
+      var(--ec-indentGuideCol, rgba(148, 163, 184, 0.35))
+        var(--ec-indentStep, 4ch)
+    );
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    mix-blend-mode: multiply;
+    opacity: 0.85;
+    z-index: 0;
+  }
+
+  .expressive-code pre.wrap .ec-line .code span.indent {
+    white-space: pre;
+  }
+
+  .expressive-code .ec-line .code .indent {
+    display: inline-flex;
+    white-space: pre;
+  }
+
+  .expressive-code .ec-line .code .indent-slot {
+    display: inline-flex;
+    white-space: pre;
+    position: relative;
+  }
+
+  .expressive-code.has-indent-guides .ec-line .code .indent-slot {
+    border-inline-end: 1px solid
+      var(--ec-indentGuideCol, rgba(148, 163, 184, 0.35));
+  }
+
+  .expressive-code.has-indent-guides
+    .ec-line
+    .code
+    .indent-slot.indent-slot-partial {
+    border-inline-end: none;
+  }
+
+  .expressive-code pre::-webkit-scrollbar,
+  .expressive-code pre::-webkit-scrollbar-track {
+    background-color: inherit;
+    border-radius: calc(
+      var(--ec-borderRad, 0.3rem) + var(--ec-borderWd, 1.5px)
+    );
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+  .expressive-code pre::-webkit-scrollbar-thumb {
+    background-color: var(--ec-scrollbarThumbCol, rgba(148, 163, 184, 0.4));
+    border: 4px solid transparent;
+    background-clip: content-box;
+    border-radius: 10px;
+  }
+
+  .expressive-code pre::-webkit-scrollbar-thumb:hover {
+    background-color: var(
+      --ec-scrollbarThumbHoverCol,
+      rgba(148, 163, 184, 0.55)
+    );
+  }
+
+  .expressive-code .code-lang {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.6rem;
+    padding: 0;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    background: none;
+    color: var(--ec-langFg, var(--ec-codeFg, currentColor));
+    font-size: 0.68em;
+    pointer-events: none;
+    opacity: 0.6;
+    transition: opacity 160ms ease, color 160ms ease;
+    z-index: 2;
+  }
+
+  .expressive-code:focus-within .code-lang,
+  .expressive-code:hover .code-lang {
+    opacity: 1;
+    color: var(--ec-langFg, var(--ec-codeFg, currentColor));
+  }
+
+  .expressive-code .copy-button {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.3rem;
+    height: 2.3rem;
+    border-radius: 0.45rem;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    background-color: var(--ec-copyBg, rgba(15, 23, 42, 0.04));
+    color: var(--ec-copyFg, rgba(15, 23, 42, 0.7));
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: auto;
+    transition: opacity 160ms ease, transform 160ms ease,
+      background-color 140ms ease, color 140ms ease;
+    transform: translateY(-0.3rem);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns%3D%27http://www.w3.org/2000/svg%27 viewBox%3D%270 0 24 24%27 fill%3D%27none%27 stroke%3D%27currentColor%27 stroke-width%3D%271.75%27 stroke-linecap%3D%27round%27 stroke-linejoin%3D%27round%27%3E%3Cpath d%3D%27M3 19a2 2 0 0 1-1-2V3a2 2 0 0 1 1-1h13a2 2 0 0 1 2 1%27/%3E%3Crect x%3D%276%27 y%3D%275%27 width%3D%2716%27 height%3D%2718%27 rx%3D%271.6%27 ry%3D%271.6%27/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 60%;
+    z-index: 3;
+  }
+
+  .expressive-code .copy-button:is(:hover, :focus-visible, :active) {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .expressive-code .copy-button:focus-visible {
+    outline: 2px solid rgba(148, 163, 184, 0.55);
+    outline-offset: 2px;
+    background-color: var(--ec-copyBgFocus, rgba(15, 23, 42, 0.16));
+    color: var(--ec-copyFgFocus, rgba(15, 23, 42, 1));
+  }
+
+  .expressive-code .copy-button::before {
+    content: "";
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: transparent;
+    border: none;
+    pointer-events: none;
+  }
+
+  .expressive-code .copy-button::after {
+    content: none;
+    pointer-events: none;
+  }
+
+  .expressive-code .copy-button .copy-label,
+  .expressive-code .copy-button .copy-feedback {
+    display: none;
+  }
+
+  .expressive-code .copy-button:hover {
+    background-color: var(--ec-copyBgHover, rgba(15, 23, 42, 0.12));
+    color: var(--ec-copyFgHover, rgba(15, 23, 42, 0.9));
+  }
+
+  .expressive-code .copy-button span[aria-hidden="true"] {
+    font-family: var(--ec-uiFontFamily, inherit);
+  }
+
+  .expressive-code .ec-header,
+  .expressive-code .ec-footer {
+    display: block;
+    padding: 0.35rem var(--ec-codePadInl, 1.35rem);
+    color: var(--ec-uiFg, currentColor);
+  }
+
+  .expressive-code .ec-header.ec-ext,
+  .expressive-code .ec-footer.ec-ext {
+    padding: 0.25rem var(--ec-codePadInl, 1.35rem);
+  }
+
+  .expressive-code .ec-line {
+    direction: ltr;
+    unicode-bidi: isolate;
+    display: grid;
+    grid-template-areas: "gutter code";
+    grid-template-columns: auto 1fr;
+    column-gap: var(--ec-gutterGap, 0.25rem);
+    position: relative;
+    --lineBg: var(--ec-codeBg, #0d1117);
+    background: var(--lineBg);
+  }
+
+  .expressive-code:not(.has-gutter) .ec-line {
+    grid-template-columns: 1fr;
+  }
+
+  .expressive-code:not(.has-gutter) .ec-line .code {
+    padding-inline: var(--ec-codePadInl, 1.35rem);
+  }
+
+  .expressive-code .ec-line .gutter {
+    grid-area: gutter;
+    color: var(--ec-gtrFg, rgba(148, 163, 184, 0.8));
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: var(--lineBg, var(--ec-gutterBg, var(--ec-codeBg, #0d1117)));
+    box-shadow: 1px 0 0 var(--ec-gtrBrdCol, rgba(148, 163, 184, 0.2));
+  }
+
+  .expressive-code .ec-line .gutter > * {
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .expressive-code .ec-line .gutter ~ .code {
+    --ecLineBrdCol: var(--ec-gtrBrdCol, rgba(148, 163, 184, 0.2));
+  }
+
+  .expressive-code .ec-line.highlight .gutter {
+    color: var(--ec-gtrHighlightFg, rgba(226, 232, 240, 0.95));
+  }
+
+  .expressive-code .ec-line .gutter .ln {
+    display: inline-flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    box-sizing: content-box;
+    min-width: var(--lnWidth, 2ch);
+    padding-inline-start: var(--ec-gutterPadLeft, 0.5rem);
+    padding-inline-end: var(--ec-codePadInl, 1.35rem);
+    font-size: var(--ec-codeFontSize, 0.85rem);
+    font-variant-numeric: tabular-nums;
+    color: inherit;
+  }
+
+  .expressive-code .ec-line .gutter .ln > span + span {
+    margin-inline-start: 0.25em;
+  }
+
+  .expressive-code .ec-line .code {
+    position: relative;
+    z-index: 1;
+  }
+
+  .expressive-code .ec-line .code .indent-overlay {
+    display: none;
+  }
+
+  .expressive-code.has-indent-guides .ec-line .code .indent-overlay {
+    position: absolute;
+    inset: 0 auto 0 0;
+    display: block;
+    /* Shrink overlay by 1px to avoid drawing a vertical guide at the very end of
+       the inline area (prevents an extra line appearing at each row end).
+       Use max(...) to avoid negative values when --ecIndent is small. */
+    width: max(0px, calc(var(--ecIndent, 0) - 2px));
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+      to right,
+      transparent 0,
+      transparent calc(var(--ec-indentStep, 4ch) - 1px),
+      var(--ec-indentGuideCol, rgba(148, 163, 184, 0.35))
+        calc(var(--ec-indentStep, 4ch) - 1px),
+      var(--ec-indentGuideCol, rgba(148, 163, 184, 0.35))
+        var(--ec-indentStep, 4ch)
+    );
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    mix-blend-mode: multiply;
+    opacity: 0.85;
+    z-index: 0;
+  }
+  .expressive-code .ec-comment {
+    grid-column: 1 / -1;
+    padding: 0.55rem calc(var(--ec-codePadInl, 1.35rem) + 0.25rem);
+    font-size: 0.85em;
+    background: var(--ec-commentBg, rgba(56, 189, 248, 0.18));
+    color: var(--ec-commentFg, currentColor);
+    box-shadow: inset 0 1px 0 rgba(15, 23, 42, 0.08),
+      inset 0 -1px 0 rgba(15, 23, 42, 0.06);
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    width: 100cqw;
+    box-sizing: border-box;
+  }
+
+  .expressive-code .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  code.expressive-code-inline {
+    display: inline-block;
+    padding: 0 var(--ec-inlinePadInl, 0.4rem);
+    border-radius: calc(var(--ec-borderRad, 0.3rem) / 1.2);
+    background: var(--ec-inlineBg, rgba(148, 163, 184, 0.2));
+    color: var(--ec-inlineFg, inherit);
+    font-family: var(
+      --ec-codeFontFamily,
+      ui-monospace,
+      SFMono-Regular,
+      Menlo,
+      Monaco,
+      Consolas,
+      "Liberation Mono",
+      "Courier New",
+      monospace
+    );
+    font-size: 0.95em;
+    line-height: 1.2;
+    white-space: pre;
+  }
+}
+</style><h2>Never Fork Again</h2><h5>12 September, 2018</h5><p>It’s no secret in the blockchain world that upgrading an existing blockchain sucks, even more than everything else in blockchain sucks. Blockchains are essentially copy-on-write: there’s no way to actually “upgrade” a blockchain in the traditional sense, only create a new blockchain that retains the old one’s history. Like if you replace your dead dog with another of the same breed and you call it the same name for the sake of the kids. Except in this case the original dog isn’t dead, and also I guess the new dog has all the memories of the original dog surgically implanted into its brain somehow. The metaphor starts to break down if you look at it too hard but anyway, you get the point. No upgrades, only forks. This has been the paradigm for as long as there have been blockchains. There’s probably some old computer in someone’s cupboard still running a Bitcoin miner from 2009, and so Bitcoin hasn’t been upgraded in the traditional sense. Assuming you could find that cupboard and a compatibly-old client you could still connect to Bitcoin 2009 (presumably mostly made up of transactions from people buying and selling pirated copies of X-Men Origins: Wolverine).</p><h3>Upgrading blockchains is hard</h3><p>This is a problem with distributed systems in general, but it’s <em>really</em> a problem with decentralised systems like Bitcoin where no one entity controls all the computers on the network. You can’t call up every Bitcoin miner and tell them that they have to upgrade. You <em>can</em> call up every Bitcoin miner that actually matters, but that’s a bug and not a feature of the Bitcoin network. The way many blockchains deal with this nowadays is to upgrade clients way ahead of time, with the upgraded client supporting both versions of the network and an if statement that switches to the new code at a certain block number. Ethereum manages relatively regular updates using this method. This works just fine for now, but it doesn’t really fix the problem of forking every time you want to change anything, it just buys you time. Besides, it’s uncivilised. When London votes for a mayor, it doesn’t split along political lines into London and London Classic, they choose the mayor that makes the most people happy (or more accurately, that makes the most people the least unhappy). This kind of formalised governance system is what is needed to reduce uncertainty in the blockchain ecosystem. Right now, it’s impossible to have a long-running light client such as you’d find in an IoT device without trusting a third party to supply you with regular, trusted updates. Let’s be real though, most IoT manufacturers here in reality will not update at all if they can get away with it. It’s a difficult problem to update an IoT device safely, but more to the point most manufacturers just don’t care. <a href="https://en.wikipedia.org/wiki/Mirai_(malware)">Mirai</a> would not have happened if IoT manufacturers could be trusted to update their software with the reliability that is required for running a blockchain node.</p><p>Another solution to this, of course, is to never even try to update the blockchain. That’s Bitcoin’s solution for the most part, although arguably the community cares less about long-running light clients and governance than they do about invalidating the ASIC investment of the 10 miners that get any of the rewards. We’ll invalidate this solution for the sake of this article, though, since I think most people would agree that updating your software is a good thing and usually a good heuristic for what to think about a subject is whatever’s the opposite of what Bitcoin people believe.</p><h3>On-chain upgrades and other horrors</h3><p>One way you could get clients to update is to deploy the entire client on-chain. You could have some method of on-chain governance choose whether or not that client is accepted, and then if it is then all the clients across the world can install the new version and (Linux) <a href="http://man7.org/linux/man-pages/man2/fork.2.html">fork</a> instead of (blockchain) fork. Of course, you can’t just deploy binaries on the blockchain - for a start, that basically grants the government the ability to run arbitrary code on anyone’s computer. This doesn’t just mean they can do anything they like to the blockchain, but they can turn your computer into a botnet node, they can fill your pictures folder with <a href="https://www.google.com/search?q=danny+devito+oil+painting&amp;tbm=isch">oil paintings of Danny DeVito</a> (seriously, that’s a shockingly well-stocked genre of art) or even - God forbid - mine Bitcoin. Even if you trust the government completely, it’s a big logistical problem to deploy a binary for every OS and every architecture available.</p><p>So let’s say that we run the whole client in a virtual machine. We write it in Java or Scala and we deploy Java bytecode on the blockchain, or we do something similar to Apple and write our code in a LLVM-backed compile-to-native language and deploy LLVM bitcode. Well, this is better, but no matter the VM format you use you’re heavily limiting the languages that you can build a client in. Plus you’re still deploying a gigantic blob on the blockchain, where space is at a premium (or <em>should</em> be at a premium, but realistically <a href="https://ethresear.ch/t/a-simple-and-principled-way-to-compute-rent-fees/1455">storage rent</a> isn’t widely implemented). This is ignoring the fact that when you build a LLVM language you generate different bitcode depending on the OS - Apple can only get away with it because their OS’s on the different devices that they deploy to have compatible APIs.</p><p>Finally, any strategy that deploys the whole client on-chain is eventually going to hit the problem that handling rollbacks turns the whole thing into a comical farce, because the rollback strategy is defined by the very thing that you’re rolling back. There’s no good answer to defining a fork-choice rule or rollback strategy in the face of on-chain updates.</p><p>Let’s say that we separate out the code that defines the blockchain’s logic from the rest of the code and compile <em>just that</em> to a VM bytecode. By “the blockchain’s logic” I mean the code that defines that the blockchain <em>does</em>. Ethereum <em>does</em> accounts, balances and smart contracts. ZCash <em>does</em> zero-knowledge proofs of transactions. Bitcoin <em>does</em> extremely inefficient basic accounting. In the general case, it’s the code that tells us how to change the state in response to a transaction. We can still have competition on networking, speed of implementation etc, and although that means we can’t update the networking code using this method, keeping multiple different versions of nodes in a distributed network is a much better-solved problem than having those nodes achieve consensus on a constantly updating mutable state. We can use an extensible networking negotiation protocol like <a href="https://github.com/libp2p/rust-libp2p/">libp2p</a> to allow newer nodes to use newer communication protocols while still allowing older nodes to participate. To avoid the rollback problem that we mentioned before, we have to separate the logic out below the level of consensus. This means we can change <em>only</em> the code that maps transactions to state changes. This does mean that we can’t change the fork-choice rule, rollback strategy or consensus algorithm, but we have to make an abstraction trade-off somewhere. The consensus algorithm can’t be changed because it could retroactively make blocks invalid, and we can only allow change things on-chain that affect the state going forward.</p><h3>Designing our interface</h3><p>For the sake of argument and because you’ve probably worked out that I’m leading up to something here, let’s call this logic the blockchain’s “runtime”. If we’re building a new chain from scratch and we can choose our consensus algorithm and suchlike, we want to make our code as generic as possible. So, we want to allow the runtime to make as many choices as possible. Let’s say we want to support both permissioned, private chains and permissionless, public chains. For example, if we choose a <a href="https://en.wikipedia.org/wiki/Proof-of-authority">PoA consensus algorithm</a> like Tendermint or PBFT then we can have both, by allowing the runtime to choose the authorities. This means that if we want to change the way that we get consensus between authorities then we still have to hard-fork, but in practice this system still ends up incredibly flexible. Using a PoA system with authorities chosen on-chain allows us to create both permissioned chains (meaning that only certain parties can participate in the network) and permissionless chains (meaning that anyone can participate in the network). We can use any number of strategies for either kind, but for example we could create a proof-of-stake chain by choosing the authority set by a random choice of the stakers weighted by their stake. This solves the problem of upgrade strategies being undecideable - an upgrade can’t retroactively change a previous block’s authority set, only change how future authority sets are chosen.</p><p>The runtime should also be able to make its own decisions on when and how to upgrade, since that allows us to use on-chain governance to do these upgrades. Since the governance is also defined in the runtime, that means that you could program the runtime to restrict what the government is allowed to change. Maybe it’s not allowed to change the governance structure itself, but everything else is fair game. Maybe it’s only allowed to tweak small things but the basic rules of the system must remain immutable. Maybe you can change anything but different tiers of power require different levels of majority. It’s entirely up to the developer of the runtime.</p><p>This is the approach we’ve taken in Parity Substrate, the blockchain development toolkit that we’ve built at (no prizes for guessing) Parity. The consensus and networking is handled by Substrate and the chain’s logic, authority choice and automatic upgrading is handled by the runtime. Yes, as you’ve probably gathered by now, the “runtime” terminology is copped from Substrate. This also means that you separate the code that affects consensus out, which allows you to have different backends - for example, in Polkadot we can share the Polkadot-specific code between “validators”, “nominators”, “collators” and “fishermen”. Even though the nodes perform different roles they can all agree on what the state of the network should be and act accordingly. As far as the network is concerned they differ only in the kinds of transactions they submit to the network. Anything that takes data from the outside world - whether it’s a report of a node’s misbehaviour, a measurement of the weather or a human’s desire to send money to another human - is modelled as a transaction and the state is updated as a response to that. Our use of Substrate in Polkadot allows us to make changes to the network in a democratic way that doesn’t leave any clients behind, and it’s already been tested: we used the exact method explained in this article to <a href="https://medium.com/polkadot-network/polkadot-poc-2-is-here-parachains-runtime-upgrades-and-libp2p-networking-7035bb141c25">upgrade from Polkadot PoC1 to PoC2</a>. We hope that this model can usher in a new era of experimentation in the blockchain space, but that’s for you to decide.</p></body></html>

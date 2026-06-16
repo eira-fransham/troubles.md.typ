@@ -1,0 +1,412 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>What is Parity Substrate? - troubles.md</title></head><body><style>@layer components {
+  .expressive-code {
+    position: relative;
+    font-family: var(
+      --ec-uiFontFamily,
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      sans-serif
+    );
+    font-size: var(--ec-uiFontSize, 0.9rem);
+    font-weight: var(--ec-uiFontWeight, 400);
+    line-height: var(--ec-uiLineHeight, 1.65);
+    text-size-adjust: none;
+    -webkit-text-size-adjust: none;
+  }
+
+  .expressive-code *:not(:is(svg, svg *)) {
+    box-sizing: border-box;
+  }
+
+  .expressive-code::selection {
+    background: var(--ec-uiSelBg, var(--ec-codeBg, #0d1117));
+    color: var(--ec-uiSelFg, currentColor);
+  }
+
+  .expressive-code pre {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    border: var(--ec-borderWd, 1.5px) solid
+      var(--ec-borderCol, rgba(148, 163, 184, 0.25));
+    border-radius: calc(
+      var(--ec-borderRad, 0.3rem) + var(--ec-borderWd, 1.5px)
+    );
+    background: var(--ec-codeBg, #0d1117);
+    color: var(--ec-codeFg, #c9d1d9);
+    overflow-x: auto;
+    position: relative;
+    z-index: 1;
+    container-type: inline-size;
+  }
+
+  .expressive-code pre:focus-visible {
+    outline: 3px solid var(--ec-focusBorder, #3b82f6);
+    outline-offset: -3px;
+  }
+
+  .expressive-code pre > code {
+    all: unset;
+    display: block;
+    flex: 1 0 100%;
+    padding: var(--ec-codePadBlk, 0.5rem) 0;
+    color: var(--ec-codeFg, #c9d1d9);
+    font-family: var(
+      --ec-codeFontFamily,
+      ui-monospace,
+      SFMono-Regular,
+      Menlo,
+      Monaco,
+      Consolas,
+      "Liberation Mono",
+      "Courier New",
+      monospace
+    );
+    font-size: var(--ec-codeFontSize, 0.85rem);
+    font-weight: var(--ec-codeFontWeight, 400);
+    line-height: var(--ec-codeLineHeight, 1.35);
+  }
+
+  .expressive-code pre > code::selection {
+    background: var(--ec-codeSelBg, rgba(56, 189, 248, 0.35));
+    color: inherit;
+  }
+
+  .expressive-code pre.wrap .ec-line .code {
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    min-width: min(20ch, var(--ecMaxLine, 20ch));
+  }
+
+  /* When lines are allowed to wrap, the absolute overlay can overlap
+     wrapped text. Disable the overlay in wrap mode and rely on per-slot
+     borders for guides (these are handled by .indent-slot). */
+  .expressive-code pre.wrap .ec-line .code .indent-overlay {
+    display: none;
+  }
+
+  .expressive-code pre.wrap .ec-line .code::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    /* use the code line-height times the element font-size to match one line */
+    height: calc(var(--ec-codeLineHeight, 1.65) * 1em);
+    width: max(0px, calc(var(--ecIndent, 0) - 2px));
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+      to right,
+      transparent 0,
+      transparent calc(var(--ec-indentStep, 4ch) - 1px),
+      var(--ec-indentGuideCol, rgba(148, 163, 184, 0.35))
+        calc(var(--ec-indentStep, 4ch) - 1px),
+      var(--ec-indentGuideCol, rgba(148, 163, 184, 0.35))
+        var(--ec-indentStep, 4ch)
+    );
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    mix-blend-mode: multiply;
+    opacity: 0.85;
+    z-index: 0;
+  }
+
+  .expressive-code pre.wrap .ec-line .code span.indent {
+    white-space: pre;
+  }
+
+  .expressive-code .ec-line .code .indent {
+    display: inline-flex;
+    white-space: pre;
+  }
+
+  .expressive-code .ec-line .code .indent-slot {
+    display: inline-flex;
+    white-space: pre;
+    position: relative;
+  }
+
+  .expressive-code.has-indent-guides .ec-line .code .indent-slot {
+    border-inline-end: 1px solid
+      var(--ec-indentGuideCol, rgba(148, 163, 184, 0.35));
+  }
+
+  .expressive-code.has-indent-guides
+    .ec-line
+    .code
+    .indent-slot.indent-slot-partial {
+    border-inline-end: none;
+  }
+
+  .expressive-code pre::-webkit-scrollbar,
+  .expressive-code pre::-webkit-scrollbar-track {
+    background-color: inherit;
+    border-radius: calc(
+      var(--ec-borderRad, 0.3rem) + var(--ec-borderWd, 1.5px)
+    );
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+  .expressive-code pre::-webkit-scrollbar-thumb {
+    background-color: var(--ec-scrollbarThumbCol, rgba(148, 163, 184, 0.4));
+    border: 4px solid transparent;
+    background-clip: content-box;
+    border-radius: 10px;
+  }
+
+  .expressive-code pre::-webkit-scrollbar-thumb:hover {
+    background-color: var(
+      --ec-scrollbarThumbHoverCol,
+      rgba(148, 163, 184, 0.55)
+    );
+  }
+
+  .expressive-code .code-lang {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.6rem;
+    padding: 0;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    background: none;
+    color: var(--ec-langFg, var(--ec-codeFg, currentColor));
+    font-size: 0.68em;
+    pointer-events: none;
+    opacity: 0.6;
+    transition: opacity 160ms ease, color 160ms ease;
+    z-index: 2;
+  }
+
+  .expressive-code:focus-within .code-lang,
+  .expressive-code:hover .code-lang {
+    opacity: 1;
+    color: var(--ec-langFg, var(--ec-codeFg, currentColor));
+  }
+
+  .expressive-code .copy-button {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.3rem;
+    height: 2.3rem;
+    border-radius: 0.45rem;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    background-color: var(--ec-copyBg, rgba(15, 23, 42, 0.04));
+    color: var(--ec-copyFg, rgba(15, 23, 42, 0.7));
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: auto;
+    transition: opacity 160ms ease, transform 160ms ease,
+      background-color 140ms ease, color 140ms ease;
+    transform: translateY(-0.3rem);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns%3D%27http://www.w3.org/2000/svg%27 viewBox%3D%270 0 24 24%27 fill%3D%27none%27 stroke%3D%27currentColor%27 stroke-width%3D%271.75%27 stroke-linecap%3D%27round%27 stroke-linejoin%3D%27round%27%3E%3Cpath d%3D%27M3 19a2 2 0 0 1-1-2V3a2 2 0 0 1 1-1h13a2 2 0 0 1 2 1%27/%3E%3Crect x%3D%276%27 y%3D%275%27 width%3D%2716%27 height%3D%2718%27 rx%3D%271.6%27 ry%3D%271.6%27/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 60%;
+    z-index: 3;
+  }
+
+  .expressive-code .copy-button:is(:hover, :focus-visible, :active) {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .expressive-code .copy-button:focus-visible {
+    outline: 2px solid rgba(148, 163, 184, 0.55);
+    outline-offset: 2px;
+    background-color: var(--ec-copyBgFocus, rgba(15, 23, 42, 0.16));
+    color: var(--ec-copyFgFocus, rgba(15, 23, 42, 1));
+  }
+
+  .expressive-code .copy-button::before {
+    content: "";
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: transparent;
+    border: none;
+    pointer-events: none;
+  }
+
+  .expressive-code .copy-button::after {
+    content: none;
+    pointer-events: none;
+  }
+
+  .expressive-code .copy-button .copy-label,
+  .expressive-code .copy-button .copy-feedback {
+    display: none;
+  }
+
+  .expressive-code .copy-button:hover {
+    background-color: var(--ec-copyBgHover, rgba(15, 23, 42, 0.12));
+    color: var(--ec-copyFgHover, rgba(15, 23, 42, 0.9));
+  }
+
+  .expressive-code .copy-button span[aria-hidden="true"] {
+    font-family: var(--ec-uiFontFamily, inherit);
+  }
+
+  .expressive-code .ec-header,
+  .expressive-code .ec-footer {
+    display: block;
+    padding: 0.35rem var(--ec-codePadInl, 1.35rem);
+    color: var(--ec-uiFg, currentColor);
+  }
+
+  .expressive-code .ec-header.ec-ext,
+  .expressive-code .ec-footer.ec-ext {
+    padding: 0.25rem var(--ec-codePadInl, 1.35rem);
+  }
+
+  .expressive-code .ec-line {
+    direction: ltr;
+    unicode-bidi: isolate;
+    display: grid;
+    grid-template-areas: "gutter code";
+    grid-template-columns: auto 1fr;
+    column-gap: var(--ec-gutterGap, 0.25rem);
+    position: relative;
+    --lineBg: var(--ec-codeBg, #0d1117);
+    background: var(--lineBg);
+  }
+
+  .expressive-code:not(.has-gutter) .ec-line {
+    grid-template-columns: 1fr;
+  }
+
+  .expressive-code:not(.has-gutter) .ec-line .code {
+    padding-inline: var(--ec-codePadInl, 1.35rem);
+  }
+
+  .expressive-code .ec-line .gutter {
+    grid-area: gutter;
+    color: var(--ec-gtrFg, rgba(148, 163, 184, 0.8));
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: var(--lineBg, var(--ec-gutterBg, var(--ec-codeBg, #0d1117)));
+    box-shadow: 1px 0 0 var(--ec-gtrBrdCol, rgba(148, 163, 184, 0.2));
+  }
+
+  .expressive-code .ec-line .gutter > * {
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .expressive-code .ec-line .gutter ~ .code {
+    --ecLineBrdCol: var(--ec-gtrBrdCol, rgba(148, 163, 184, 0.2));
+  }
+
+  .expressive-code .ec-line.highlight .gutter {
+    color: var(--ec-gtrHighlightFg, rgba(226, 232, 240, 0.95));
+  }
+
+  .expressive-code .ec-line .gutter .ln {
+    display: inline-flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    box-sizing: content-box;
+    min-width: var(--lnWidth, 2ch);
+    padding-inline-start: var(--ec-gutterPadLeft, 0.5rem);
+    padding-inline-end: var(--ec-codePadInl, 1.35rem);
+    font-size: var(--ec-codeFontSize, 0.85rem);
+    font-variant-numeric: tabular-nums;
+    color: inherit;
+  }
+
+  .expressive-code .ec-line .gutter .ln > span + span {
+    margin-inline-start: 0.25em;
+  }
+
+  .expressive-code .ec-line .code {
+    position: relative;
+    z-index: 1;
+  }
+
+  .expressive-code .ec-line .code .indent-overlay {
+    display: none;
+  }
+
+  .expressive-code.has-indent-guides .ec-line .code .indent-overlay {
+    position: absolute;
+    inset: 0 auto 0 0;
+    display: block;
+    /* Shrink overlay by 1px to avoid drawing a vertical guide at the very end of
+       the inline area (prevents an extra line appearing at each row end).
+       Use max(...) to avoid negative values when --ecIndent is small. */
+    width: max(0px, calc(var(--ecIndent, 0) - 2px));
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+      to right,
+      transparent 0,
+      transparent calc(var(--ec-indentStep, 4ch) - 1px),
+      var(--ec-indentGuideCol, rgba(148, 163, 184, 0.35))
+        calc(var(--ec-indentStep, 4ch) - 1px),
+      var(--ec-indentGuideCol, rgba(148, 163, 184, 0.35))
+        var(--ec-indentStep, 4ch)
+    );
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    mix-blend-mode: multiply;
+    opacity: 0.85;
+    z-index: 0;
+  }
+  .expressive-code .ec-comment {
+    grid-column: 1 / -1;
+    padding: 0.55rem calc(var(--ec-codePadInl, 1.35rem) + 0.25rem);
+    font-size: 0.85em;
+    background: var(--ec-commentBg, rgba(56, 189, 248, 0.18));
+    color: var(--ec-commentFg, currentColor);
+    box-shadow: inset 0 1px 0 rgba(15, 23, 42, 0.08),
+      inset 0 -1px 0 rgba(15, 23, 42, 0.06);
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    width: 100cqw;
+    box-sizing: border-box;
+  }
+
+  .expressive-code .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  code.expressive-code-inline {
+    display: inline-block;
+    padding: 0 var(--ec-inlinePadInl, 0.4rem);
+    border-radius: calc(var(--ec-borderRad, 0.3rem) / 1.2);
+    background: var(--ec-inlineBg, rgba(148, 163, 184, 0.2));
+    color: var(--ec-inlineFg, inherit);
+    font-family: var(
+      --ec-codeFontFamily,
+      ui-monospace,
+      SFMono-Regular,
+      Menlo,
+      Monaco,
+      Consolas,
+      "Liberation Mono",
+      "Courier New",
+      monospace
+    );
+    font-size: 0.95em;
+    line-height: 1.2;
+    white-space: pre;
+  }
+}
+</style><h2>What is Parity Substrate?</h2><h5>03 July, 2018</h5><p>This post was sponsored by my employer, <a href="http://paritytech.io/">Parity Technologies</a> If you’ve followed any of Polkadot’s development, you will probably have seen “Substrate” mentioned many times. It’s an important component of the Polkadot project but information on it is very thin on the ground. It’s not in the whitepaper or the yellow paper - or at least, not under the name “Substrate” - and the specification for it is still in heavy flux. At a high level, it’s a framework for creating cryptocurrencies and other decentralised systems using the latest research in blockchain technology. That’s not very helpful, though. At least, it’s not very helpful for me.</p><p>I think the most important part of understanding Parity Substrate is that it is not part of Polkadot at all. Although Polkadot is built with Substrate and projects built with Substrate can run natively on Polkadot, you can use Substrate to build new blockchains right now. You don’t need to wait for Polkadot to be finished or even for a proof-of-concept to be released to start working on a blockchain using this framework.</p><p>So what is Substrate? You can think of it as being like Express or another web application framework, but for building distributed or decentralised systems such as cryptocurrencies or a message bus. Just as most web applications shouldn’t need to reimplement their own version of HTTP, we believe that it’s wasted effort for every team creating a new blockchain to have to implement all the networking and consensus code from scratch. Not to mention the cryptographers, security researchers, networking engineers, devops personnel (to coordinate updates) and so on that would need to be hired and paid for when really your business logic is your product. If you want to build a new project using Substrate, all you have to do is implement a very small number of hooks in your code and then for free you get:</p><ul><li>Consensus, finality and block voting logic. Even if you’re not building a cryptocurrency or even a project that requires a blockchain this is desirable - it means that for free you can get <a href="https://en.wikipedia.org/wiki/Byzantine_fault_tolerance">byzantine fault tolerance</a>, so your system will still continue to work correctly even if some of the nodes in it are broken, disabled or malicious;</li><li>Networking, so peer discovery, replication et cetera;</li><li>An efficient, deterministic, sandboxed <a href="https://webassembly.org/">WebAssembly</a> runtime, this can be used to run smart contracts or even to run other Substrate-based projects. You don’t need to use WebAssembly, of course, you can just write your own virtual machine interpreter, but we strongly believe in the benefits of using a WebAssembly runtime and doing so allows you to tap into our work on WebAssembly and the worldwide community of other developers creating tooling for it;</li><li>The ability to seamlessly run a node in the browser that can communicate with any desktop or cloud node;</li><li>A cross-platform database/file storage abstraction, which even works in-browser;</li><li>Seamless client updates - any update that could affect consensus is handled by compiling the code to WebAssembly and deploying it as just another message on the network. Not only that, but you can store as many versions of the consensus code as you want compiled to native code, and Substrate will handle the complexity of making sure that the native code being executed lines up with the currently-deployed WebAssembly code. You get the speed of native code, but because there’s always a WebAssembly fallback you can deploy a native version of the code at your own pace and be safe in the knowledge that you can never accidentally get a hard fork or other consensus issues.</li><li>The ability to immediately start running your project on Polkadot the moment it is released. Although projects built with Substrate can be compiled to use separate clients per-project (like existing blockchains do), since Polkadot implements the Substrate API you can tap into the shared security and interopability that Polkadot provides. Polkadot is itself being built using Substrate, which allows us to get fast feedback on any holes in the framework and allows us to run a Polkadot testnet or even a second instance of Polkadot itself as a parachain. If you don’t know about Polkadot or if you just haven’t been sufficiently propagandised about its benefits, you can check out <a href="https://medium.com/polkadot-network/how-polkadot-tackles-the-biggest-problems-facing-blockchain-innovators-1affc1309b0f">this post on our blog</a>.</li></ul><p>So what don’t you get for free? Essentially it’s just your state machine, which includes things like transactions. To make Substrate as generic as possible, it has no transactions. Instead, it has what we call “extrinsics”, which are just binary blobs that you can use to store any data that you want. For most chains these extrinsics will include transactions, but of course you don’t need to implement it that way! You could remove the concept of currency from the network entirely and use Substrate to create a decentralised Erlang-style actor-model concurrent system with a set of trusted authorities to verify the correct behaviour of the network. Assuming you do want currency and transactions, however, implementing the transaction format will likely be trivial - just an interchange format and a library to access that data from your chosen language. It’s even easier than other distributed architectures like microservices - since the code and the data it operates on is stored in the same place, you don’t need to enforce backwards-compatibility guarantees for transactions<sup id="backwards-compat" role="doc-noteref"><a href="#loc-1">20</a></sup>, just for storage. For chains with private transactions the implementation may be more complex. The names of everything are not finalised and so you’ll see different language used in different places, but here’s a simple explanation of what you’d need to implement in order to get a full blockchain up and running:</p><ul><li><p>A function that creates a new pending block based on the previous block’s header. The header includes:</p><ul><li>The block height;</li><li>A “cryptographic commitment” to the block’s state, this is important for light clients to validate that the block is correct. A cryptographic commitment serves the same role as a hash, you cannot change the state without invalidating the commitment;</li><li>A cryptographic commitment to all the extrinsics in the body, which prevents the extrinsics from being changed;</li><li>A hash of the block’s parent;</li><li>Some extra arbitrary data. One usecase for this data would be for client updates - since light clients only sync headers, if you want to update them you can’t have updates implemented as an extrinsic or the light clients won’t receive them.</li></ul></li><li>A function that adds an extrinsic (such as a transaction) to a pending block. This should also update the chain’s state (for example, account balances);</li><li>A function that takes a pending block and generates a finished block from it. This finished block can then be propagated throughout the network;</li><li>A function that executes an existing block. This is run by full nodes to confirm that received blocks are valid before accepting them. For example, in a value-bearing chain you could check that no-one tries to transfer more than their balance.</li></ul><p>One downside of this design is that you have to manually make sure that the state transitions done while creating a block and the state transitions done while executing an existing block are kept in sync. If you don’t do this, you could get consensus issues! This may change in the future, but for now this shouldn’t be much of a problem in practice as you will likely delegate the executing of extrinsics to a common function.</p><p>Additionally, you need to provide a validator set. This covers both proof-of-authority and proof-of-stake/delegated proof-of-stake chains, although we have no intention to support proof-of-work chains in Substrate as of now. The validator set is a list of public keys whose corresponding private keys should be considered valid to sign a given block. The set can change, but each block is validated by the set that was chosen at the time of the block’s creation. You don’t have to handle the difficult problem of handling the validators’ votes or even their “vouching” for individual blocks, that’s handled by Substrate automatically. The validator set can be as large as you like, but there’s a tradeoff to be made here. The less validators you have the easier it would be for them to collude, but the more validators that you have the more validators will be needed to validate any given block before it is considered “finalised” (i.e. unrevertable)<sup id="finality" role="doc-noteref"><a href="#loc-2">21</a></sup>.</p><p>We can’t have Substrate automatically handle proof-of-stake for you, since proof-of-stake relies on your project including value-bearing tokens and not all projects will. Testnets may deliberately have tokens without value, and projects using Substrate to implement a message bus may not have tokens at all. However, it would be easy to write a library on top of Substrate that enforces the use of tokens and gives you transactions and proof-of-stake consensus automatically<sup id="pos" role="doc-noteref"><a href="#loc-3">22</a></sup>. One thing about Substrate is that it’s relatively easy to build higher-level libraries on top of it. Even though you get a lot for free when building a new blockchain with Substrate, it’s still a relatively minimal set of primitives and it’s not really intended to be used directly. Instead, it should be taken as a building block and other common functionality can be factored into helper libraries. Although details haven’t been confirmed yet, Polkadot is not the only chain pegged to be built on Substrate; as the platform matures, more libraries can be built to make building new chains as easy as writing a modern web app.</p><p>I know that “coming soon“s in tech articles are about as trustworthy as a politician’s promise, but I’m going to end with one anyway. Although building on Substrate is already possible, we’re currently missing learning materials. Right now, there’s really no way that you could learn how to do any of what I just told you without already being part of the Polkadot team. We’re working on that, though, so if any of this excites you then keep your eye out for Substrate tutorials and documentation coming soon.</p><section role="doc-endnotes"><ol style="list-style-type: none"><li id="loc-1"><p><sup role="doc-backlink"><a href="#backwards-compat">20</a></sup>Of course, realistically you would probably want to enforce backwards compatibility eventually so that external tools can easily interact with your chain, but while you’re developing you can play as fast-and-loose with compatibility as you like. Even when you do need to be backwards-compatible it doesn’t have to be hard, you can use protobuf to get efficient backwards-compatible storage for free.</p></li><li id="loc-2"><p><sup role="doc-backlink"><a href="#finality">21</a></sup>As an example of the degenerate case of this effect, pure proof-of-work chains like Bitcoin or Ethereum cannot have finality at all because the set of possible validators is infinite.</p></li><li id="loc-3"><p><sup role="doc-backlink"><a href="#pos">22</a></sup>For example, a simple proof-of-stake chain might set the validator set once every block, by selecting the 100 accounts with the largest stake and removing their stake if you get a proof of misbehaviour.</p></li></ol></section></body></html>

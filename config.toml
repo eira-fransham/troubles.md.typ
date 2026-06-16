@@ -1,0 +1,122 @@
+title = "troubles.md"
+hidden-tags = ["blockchain"]
+
+[[articles]]
+path = "i-triple-equals.md"
+title = "In which the CPU changes my data under my nose"
+tags = ["rust", "assembly", "best-of"]
+date = 2018-05-15
+
+[[articles]]
+path = "artisinal-rust.md"
+title = "Writing safe zero-cost abstractions in Rust"
+date = 2018-04-23
+draft = true
+
+[[articles]]
+path = "comparison-of-inter-blockchain-communication-technologies.md"
+title = "Comparison of Inter-Blockchain Communication Technologies"
+date = 2018-09-04
+
+[[articles]]
+path = "fork-free-upgrading.md"
+title = "Never Fork Again"
+tags = ["blockchain"]
+date = 2018-09-12
+
+[[articles]]
+path = "improving-smallvec.md"
+title = "Improving SmallVec's speed by 60% and why that shouldn't matter to you"
+tags = ["rust", "performance"]
+date = 2018-05-17
+
+[[articles]]
+path = "lets-write-llvm-ir.md"
+title = "Lets Write LLVM IR"
+date = 2018-05-16
+draft = true
+
+[[articles]]
+path = "rust-optimization.md"
+title = "Achieving warp speed with Rust"
+tags = ["rust", "performance"]
+date = 2017-05-17
+
+[[articles]]
+path = "rust-smart-contracts.md"
+title = "Towards a Brighter Future for Smart Contracts"
+tags = ["blockchain"]
+date = 2018-05-14
+
+[[articles]]
+path = "rust-vs-javascript.md"
+title = "JavaScript: a view from the bottom"
+date = 2018-05-17
+draft = true
+
+[[articles]]
+path = "rustfest-2018-workshop.md"
+title = "Fastware Workshop"
+date = 2018-05-22
+draft = false
+
+[[articles]]
+path = "sexpress.md"
+title = "How I wrote possibly the fastest S-expression parser in the world (and you can too)"
+date = 2018-05-16
+draft = true
+
+[[articles]]
+path = "the-power-of-compilers.md"
+title = "How a Rust upgrade more than tripled the speed of my code"
+date = 2018-05-11
+draft = false
+
+[[articles]]
+path = "wasm-is-not-a-stack-machine.md"
+title = "WebAssembly Troubles part 1: WebAssembly Is Not a Stack Machine"
+tags = ["rust", "wasm", "best-of"]
+date = 2019-01-30
+draft = false
+
+[[articles]]
+path = "why-do-we-need-the-relooper-algorithm-again.md"
+title = "WebAssembly Troubles part 2: Why Do We Need the Relooper Algorithm, Again?"
+tags = ["rust", "wasm", "best-of"]
+date = 2019-01-30
+draft = false
+
+[[articles]]
+path = "the-stack-is-not-the-stack.md"
+title = "WebAssembly Troubles part 3: What About Alloca?"
+tags = ["rust", "wasm", "best-of"]
+date = 2019-01-31
+draft = false
+
+[[articles]]
+path = "what-is-substrate.md"
+title = "What is Parity Substrate?"
+tags = ["blockchain"]
+date = 2018-07-03
+draft = false
+
+[[articles]]
+path = "why-phantomdata.md"
+title = "Why PhantomData"
+date = 2018-06-05
+tags = ["rust"]
+draft = false
+
+[[articles]]
+path = "why-wasm.md"
+title = "Wasm on the Blockchain: The Lesser Evil"
+tags = ["blockchain"]
+date = 2018-08-07
+draft = false
+
+[[articles]]
+path = "why-write-smart-contracts-in-rust.md"
+title = "Why Write Smart Contracts in Rust?"
+tags = ["blockchain", "rust"]
+date = 2018-07-05
+draft = false

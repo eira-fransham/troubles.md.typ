@@ -1,0 +1,923 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>In which the CPU changes my data under my nose - troubles.md</title></head><body><style>@layer components {
+  .expressive-code {
+    position: relative;
+    font-family: var(
+      --ec-uiFontFamily,
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      sans-serif
+    );
+    font-size: var(--ec-uiFontSize, 0.9rem);
+    font-weight: var(--ec-uiFontWeight, 400);
+    line-height: var(--ec-uiLineHeight, 1.65);
+    text-size-adjust: none;
+    -webkit-text-size-adjust: none;
+  }
+
+  .expressive-code *:not(:is(svg, svg *)) {
+    box-sizing: border-box;
+  }
+
+  .expressive-code::selection {
+    background: var(--ec-uiSelBg, var(--ec-codeBg, #0d1117));
+    color: var(--ec-uiSelFg, currentColor);
+  }
+
+  .expressive-code pre {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    border: var(--ec-borderWd, 1.5px) solid
+      var(--ec-borderCol, rgba(148, 163, 184, 0.25));
+    border-radius: calc(
+      var(--ec-borderRad, 0.3rem) + var(--ec-borderWd, 1.5px)
+    );
+    background: var(--ec-codeBg, #0d1117);
+    color: var(--ec-codeFg, #c9d1d9);
+    overflow-x: auto;
+    position: relative;
+    z-index: 1;
+    container-type: inline-size;
+  }
+
+  .expressive-code pre:focus-visible {
+    outline: 3px solid var(--ec-focusBorder, #3b82f6);
+    outline-offset: -3px;
+  }
+
+  .expressive-code pre > code {
+    all: unset;
+    display: block;
+    flex: 1 0 100%;
+    padding: var(--ec-codePadBlk, 0.5rem) 0;
+    color: var(--ec-codeFg, #c9d1d9);
+    font-family: var(
+      --ec-codeFontFamily,
+      ui-monospace,
+      SFMono-Regular,
+      Menlo,
+      Monaco,
+      Consolas,
+      "Liberation Mono",
+      "Courier New",
+      monospace
+    );
+    font-size: var(--ec-codeFontSize, 0.85rem);
+    font-weight: var(--ec-codeFontWeight, 400);
+    line-height: var(--ec-codeLineHeight, 1.35);
+  }
+
+  .expressive-code pre > code::selection {
+    background: var(--ec-codeSelBg, rgba(56, 189, 248, 0.35));
+    color: inherit;
+  }
+
+  .expressive-code pre.wrap .ec-line .code {
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    min-width: min(20ch, var(--ecMaxLine, 20ch));
+  }
+
+  /* When lines are allowed to wrap, the absolute overlay can overlap
+     wrapped text. Disable the overlay in wrap mode and rely on per-slot
+     borders for guides (these are handled by .indent-slot). */
+  .expressive-code pre.wrap .ec-line .code .indent-overlay {
+    display: none;
+  }
+
+  .expressive-code pre.wrap .ec-line .code::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    /* use the code line-height times the element font-size to match one line */
+    height: calc(var(--ec-codeLineHeight, 1.65) * 1em);
+    width: max(0px, calc(var(--ecIndent, 0) - 2px));
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+      to right,
+      transparent 0,
+      transparent calc(var(--ec-indentStep, 4ch) - 1px),
+      var(--ec-indentGuideCol, rgba(148, 163, 184, 0.35))
+        calc(var(--ec-indentStep, 4ch) - 1px),
+      var(--ec-indentGuideCol, rgba(148, 163, 184, 0.35))
+        var(--ec-indentStep, 4ch)
+    );
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    mix-blend-mode: multiply;
+    opacity: 0.85;
+    z-index: 0;
+  }
+
+  .expressive-code pre.wrap .ec-line .code span.indent {
+    white-space: pre;
+  }
+
+  .expressive-code .ec-line .code .indent {
+    display: inline-flex;
+    white-space: pre;
+  }
+
+  .expressive-code .ec-line .code .indent-slot {
+    display: inline-flex;
+    white-space: pre;
+    position: relative;
+  }
+
+  .expressive-code.has-indent-guides .ec-line .code .indent-slot {
+    border-inline-end: 1px solid
+      var(--ec-indentGuideCol, rgba(148, 163, 184, 0.35));
+  }
+
+  .expressive-code.has-indent-guides
+    .ec-line
+    .code
+    .indent-slot.indent-slot-partial {
+    border-inline-end: none;
+  }
+
+  .expressive-code pre::-webkit-scrollbar,
+  .expressive-code pre::-webkit-scrollbar-track {
+    background-color: inherit;
+    border-radius: calc(
+      var(--ec-borderRad, 0.3rem) + var(--ec-borderWd, 1.5px)
+    );
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+  .expressive-code pre::-webkit-scrollbar-thumb {
+    background-color: var(--ec-scrollbarThumbCol, rgba(148, 163, 184, 0.4));
+    border: 4px solid transparent;
+    background-clip: content-box;
+    border-radius: 10px;
+  }
+
+  .expressive-code pre::-webkit-scrollbar-thumb:hover {
+    background-color: var(
+      --ec-scrollbarThumbHoverCol,
+      rgba(148, 163, 184, 0.55)
+    );
+  }
+
+  .expressive-code .code-lang {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.6rem;
+    padding: 0;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    background: none;
+    color: var(--ec-langFg, var(--ec-codeFg, currentColor));
+    font-size: 0.68em;
+    pointer-events: none;
+    opacity: 0.6;
+    transition: opacity 160ms ease, color 160ms ease;
+    z-index: 2;
+  }
+
+  .expressive-code:focus-within .code-lang,
+  .expressive-code:hover .code-lang {
+    opacity: 1;
+    color: var(--ec-langFg, var(--ec-codeFg, currentColor));
+  }
+
+  .expressive-code .copy-button {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.3rem;
+    height: 2.3rem;
+    border-radius: 0.45rem;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    background-color: var(--ec-copyBg, rgba(15, 23, 42, 0.04));
+    color: var(--ec-copyFg, rgba(15, 23, 42, 0.7));
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: auto;
+    transition: opacity 160ms ease, transform 160ms ease,
+      background-color 140ms ease, color 140ms ease;
+    transform: translateY(-0.3rem);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns%3D%27http://www.w3.org/2000/svg%27 viewBox%3D%270 0 24 24%27 fill%3D%27none%27 stroke%3D%27currentColor%27 stroke-width%3D%271.75%27 stroke-linecap%3D%27round%27 stroke-linejoin%3D%27round%27%3E%3Cpath d%3D%27M3 19a2 2 0 0 1-1-2V3a2 2 0 0 1 1-1h13a2 2 0 0 1 2 1%27/%3E%3Crect x%3D%276%27 y%3D%275%27 width%3D%2716%27 height%3D%2718%27 rx%3D%271.6%27 ry%3D%271.6%27/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 60%;
+    z-index: 3;
+  }
+
+  .expressive-code .copy-button:is(:hover, :focus-visible, :active) {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .expressive-code .copy-button:focus-visible {
+    outline: 2px solid rgba(148, 163, 184, 0.55);
+    outline-offset: 2px;
+    background-color: var(--ec-copyBgFocus, rgba(15, 23, 42, 0.16));
+    color: var(--ec-copyFgFocus, rgba(15, 23, 42, 1));
+  }
+
+  .expressive-code .copy-button::before {
+    content: "";
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: transparent;
+    border: none;
+    pointer-events: none;
+  }
+
+  .expressive-code .copy-button::after {
+    content: none;
+    pointer-events: none;
+  }
+
+  .expressive-code .copy-button .copy-label,
+  .expressive-code .copy-button .copy-feedback {
+    display: none;
+  }
+
+  .expressive-code .copy-button:hover {
+    background-color: var(--ec-copyBgHover, rgba(15, 23, 42, 0.12));
+    color: var(--ec-copyFgHover, rgba(15, 23, 42, 0.9));
+  }
+
+  .expressive-code .copy-button span[aria-hidden="true"] {
+    font-family: var(--ec-uiFontFamily, inherit);
+  }
+
+  .expressive-code .ec-header,
+  .expressive-code .ec-footer {
+    display: block;
+    padding: 0.35rem var(--ec-codePadInl, 1.35rem);
+    color: var(--ec-uiFg, currentColor);
+  }
+
+  .expressive-code .ec-header.ec-ext,
+  .expressive-code .ec-footer.ec-ext {
+    padding: 0.25rem var(--ec-codePadInl, 1.35rem);
+  }
+
+  .expressive-code .ec-line {
+    direction: ltr;
+    unicode-bidi: isolate;
+    display: grid;
+    grid-template-areas: "gutter code";
+    grid-template-columns: auto 1fr;
+    column-gap: var(--ec-gutterGap, 0.25rem);
+    position: relative;
+    --lineBg: var(--ec-codeBg, #0d1117);
+    background: var(--lineBg);
+  }
+
+  .expressive-code:not(.has-gutter) .ec-line {
+    grid-template-columns: 1fr;
+  }
+
+  .expressive-code:not(.has-gutter) .ec-line .code {
+    padding-inline: var(--ec-codePadInl, 1.35rem);
+  }
+
+  .expressive-code .ec-line .gutter {
+    grid-area: gutter;
+    color: var(--ec-gtrFg, rgba(148, 163, 184, 0.8));
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: var(--lineBg, var(--ec-gutterBg, var(--ec-codeBg, #0d1117)));
+    box-shadow: 1px 0 0 var(--ec-gtrBrdCol, rgba(148, 163, 184, 0.2));
+  }
+
+  .expressive-code .ec-line .gutter > * {
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .expressive-code .ec-line .gutter ~ .code {
+    --ecLineBrdCol: var(--ec-gtrBrdCol, rgba(148, 163, 184, 0.2));
+  }
+
+  .expressive-code .ec-line.highlight .gutter {
+    color: var(--ec-gtrHighlightFg, rgba(226, 232, 240, 0.95));
+  }
+
+  .expressive-code .ec-line .gutter .ln {
+    display: inline-flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    box-sizing: content-box;
+    min-width: var(--lnWidth, 2ch);
+    padding-inline-start: var(--ec-gutterPadLeft, 0.5rem);
+    padding-inline-end: var(--ec-codePadInl, 1.35rem);
+    font-size: var(--ec-codeFontSize, 0.85rem);
+    font-variant-numeric: tabular-nums;
+    color: inherit;
+  }
+
+  .expressive-code .ec-line .gutter .ln > span + span {
+    margin-inline-start: 0.25em;
+  }
+
+  .expressive-code .ec-line .code {
+    position: relative;
+    z-index: 1;
+  }
+
+  .expressive-code .ec-line .code .indent-overlay {
+    display: none;
+  }
+
+  .expressive-code.has-indent-guides .ec-line .code .indent-overlay {
+    position: absolute;
+    inset: 0 auto 0 0;
+    display: block;
+    /* Shrink overlay by 1px to avoid drawing a vertical guide at the very end of
+       the inline area (prevents an extra line appearing at each row end).
+       Use max(...) to avoid negative values when --ecIndent is small. */
+    width: max(0px, calc(var(--ecIndent, 0) - 2px));
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+      to right,
+      transparent 0,
+      transparent calc(var(--ec-indentStep, 4ch) - 1px),
+      var(--ec-indentGuideCol, rgba(148, 163, 184, 0.35))
+        calc(var(--ec-indentStep, 4ch) - 1px),
+      var(--ec-indentGuideCol, rgba(148, 163, 184, 0.35))
+        var(--ec-indentStep, 4ch)
+    );
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    mix-blend-mode: multiply;
+    opacity: 0.85;
+    z-index: 0;
+  }
+  .expressive-code .ec-comment {
+    grid-column: 1 / -1;
+    padding: 0.55rem calc(var(--ec-codePadInl, 1.35rem) + 0.25rem);
+    font-size: 0.85em;
+    background: var(--ec-commentBg, rgba(56, 189, 248, 0.18));
+    color: var(--ec-commentFg, currentColor);
+    box-shadow: inset 0 1px 0 rgba(15, 23, 42, 0.08),
+      inset 0 -1px 0 rgba(15, 23, 42, 0.06);
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    width: 100cqw;
+    box-sizing: border-box;
+  }
+
+  .expressive-code .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  code.expressive-code-inline {
+    display: inline-block;
+    padding: 0 var(--ec-inlinePadInl, 0.4rem);
+    border-radius: calc(var(--ec-borderRad, 0.3rem) / 1.2);
+    background: var(--ec-inlineBg, rgba(148, 163, 184, 0.2));
+    color: var(--ec-inlineFg, inherit);
+    font-family: var(
+      --ec-codeFontFamily,
+      ui-monospace,
+      SFMono-Regular,
+      Menlo,
+      Monaco,
+      Consolas,
+      "Liberation Mono",
+      "Courier New",
+      monospace
+    );
+    font-size: 0.95em;
+    line-height: 1.2;
+    white-space: pre;
+  }
+}
+</style><script>const CODE_BLOCK_SELECTOR = ".expressive-code";
+const COPY_BUTTON_SELECTOR = ".copy-button";
+
+const selectCodeBlocks = () =>
+  Array.from(document.querySelectorAll(CODE_BLOCK_SELECTOR));
+
+const extractCodeText = (codeBlock) =>
+  Array.from(codeBlock.querySelectorAll(".ec-line .code"))
+    .map((line) => {
+      const indent = line.dataset.indent ?? "";
+      const content = line.textContent
+        .replace(/\u00a0/g, " ")
+        .replace(/\u200b/gi, "");
+      return indent + content;
+    })
+    .join("\n");
+
+const fallbackCopy = (text) => {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "true");
+  textarea.style.position = "absolute";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  /** @type {any} */ (document).execCommand("copy");
+  document.body.removeChild(textarea);
+};
+
+const setStateWithTimeout = (button, state, delay = 1600) => {
+  button.dataset.state = state;
+  if (state === "copied") {
+    setTimeout(() => {
+      if (button.dataset.state === "copied") {
+        button.dataset.state = "idle";
+      }
+    }, delay);
+  }
+};
+
+const bindCopyButton = (codeBlock) => {
+  if (!codeBlock || codeBlock.dataset.copyBound === "true") return;
+
+  const copyButton = codeBlock.querySelector(COPY_BUTTON_SELECTOR);
+  if (!copyButton) return;
+
+  codeBlock.dataset.copyBound = "true";
+
+  const copyHandler = async () => {
+    const code = extractCodeText(codeBlock);
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(code);
+      } else {
+        fallbackCopy(code);
+      }
+      setStateWithTimeout(copyButton, "copied");
+    } catch (error) {
+      try {
+        fallbackCopy(code);
+        setStateWithTimeout(copyButton, "copied");
+      } catch (fallbackError) {
+        setStateWithTimeout(copyButton, "error", 2200);
+      }
+    }
+  };
+
+  const resetHandler = () => {
+    if (copyButton.dataset.state === "copied") {
+      copyButton.dataset.state = "idle";
+    }
+  };
+
+  copyButton.addEventListener("click", copyHandler);
+  copyButton.addEventListener("blur", resetHandler);
+  copyButton.addEventListener("mouseleave", resetHandler);
+};
+
+selectCodeBlocks().forEach(bindCopyButton);
+
+const observer = new MutationObserver((mutations) => {
+  for (const mutation of mutations) {
+    mutation.addedNodes.forEach((node) => {
+      if (!(node instanceof HTMLElement)) return;
+      if (node.matches?.(CODE_BLOCK_SELECTOR)) {
+        bindCopyButton(node);
+      } else {
+        node
+          .querySelectorAll?.(CODE_BLOCK_SELECTOR)
+          .forEach((block) => bindCopyButton(block));
+      }
+    });
+  }
+});
+
+observer.observe(document.documentElement, {
+  childList: true,
+  subtree: true,
+});
+</script><style>@layer components {
+  .expressive-code {
+    position: relative;
+    font-family: var(
+      --ec-uiFontFamily,
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      sans-serif
+    );
+    font-size: var(--ec-uiFontSize, 0.9rem);
+    font-weight: var(--ec-uiFontWeight, 400);
+    line-height: var(--ec-uiLineHeight, 1.65);
+    text-size-adjust: none;
+    -webkit-text-size-adjust: none;
+  }
+
+  .expressive-code *:not(:is(svg, svg *)) {
+    box-sizing: border-box;
+  }
+
+  .expressive-code::selection {
+    background: var(--ec-uiSelBg, var(--ec-codeBg, #0d1117));
+    color: var(--ec-uiSelFg, currentColor);
+  }
+
+  .expressive-code pre {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    border: var(--ec-borderWd, 1.5px) solid
+      var(--ec-borderCol, rgba(148, 163, 184, 0.25));
+    border-radius: calc(
+      var(--ec-borderRad, 0.3rem) + var(--ec-borderWd, 1.5px)
+    );
+    background: var(--ec-codeBg, #0d1117);
+    color: var(--ec-codeFg, #c9d1d9);
+    overflow-x: auto;
+    position: relative;
+    z-index: 1;
+    container-type: inline-size;
+  }
+
+  .expressive-code pre:focus-visible {
+    outline: 3px solid var(--ec-focusBorder, #3b82f6);
+    outline-offset: -3px;
+  }
+
+  .expressive-code pre > code {
+    all: unset;
+    display: block;
+    flex: 1 0 100%;
+    padding: var(--ec-codePadBlk, 0.5rem) 0;
+    color: var(--ec-codeFg, #c9d1d9);
+    font-family: var(
+      --ec-codeFontFamily,
+      ui-monospace,
+      SFMono-Regular,
+      Menlo,
+      Monaco,
+      Consolas,
+      "Liberation Mono",
+      "Courier New",
+      monospace
+    );
+    font-size: var(--ec-codeFontSize, 0.85rem);
+    font-weight: var(--ec-codeFontWeight, 400);
+    line-height: var(--ec-codeLineHeight, 1.35);
+  }
+
+  .expressive-code pre > code::selection {
+    background: var(--ec-codeSelBg, rgba(56, 189, 248, 0.35));
+    color: inherit;
+  }
+
+  .expressive-code pre.wrap .ec-line .code {
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    min-width: min(20ch, var(--ecMaxLine, 20ch));
+  }
+
+  /* When lines are allowed to wrap, the absolute overlay can overlap
+     wrapped text. Disable the overlay in wrap mode and rely on per-slot
+     borders for guides (these are handled by .indent-slot). */
+  .expressive-code pre.wrap .ec-line .code .indent-overlay {
+    display: none;
+  }
+
+  .expressive-code pre.wrap .ec-line .code::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    /* use the code line-height times the element font-size to match one line */
+    height: calc(var(--ec-codeLineHeight, 1.65) * 1em);
+    width: max(0px, calc(var(--ecIndent, 0) - 2px));
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+      to right,
+      transparent 0,
+      transparent calc(var(--ec-indentStep, 4ch) - 1px),
+      var(--ec-indentGuideCol, rgba(148, 163, 184, 0.35))
+        calc(var(--ec-indentStep, 4ch) - 1px),
+      var(--ec-indentGuideCol, rgba(148, 163, 184, 0.35))
+        var(--ec-indentStep, 4ch)
+    );
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    mix-blend-mode: multiply;
+    opacity: 0.85;
+    z-index: 0;
+  }
+
+  .expressive-code pre.wrap .ec-line .code span.indent {
+    white-space: pre;
+  }
+
+  .expressive-code .ec-line .code .indent {
+    display: inline-flex;
+    white-space: pre;
+  }
+
+  .expressive-code .ec-line .code .indent-slot {
+    display: inline-flex;
+    white-space: pre;
+    position: relative;
+  }
+
+  .expressive-code.has-indent-guides .ec-line .code .indent-slot {
+    border-inline-end: 1px solid
+      var(--ec-indentGuideCol, rgba(148, 163, 184, 0.35));
+  }
+
+  .expressive-code.has-indent-guides
+    .ec-line
+    .code
+    .indent-slot.indent-slot-partial {
+    border-inline-end: none;
+  }
+
+  .expressive-code pre::-webkit-scrollbar,
+  .expressive-code pre::-webkit-scrollbar-track {
+    background-color: inherit;
+    border-radius: calc(
+      var(--ec-borderRad, 0.3rem) + var(--ec-borderWd, 1.5px)
+    );
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+  .expressive-code pre::-webkit-scrollbar-thumb {
+    background-color: var(--ec-scrollbarThumbCol, rgba(148, 163, 184, 0.4));
+    border: 4px solid transparent;
+    background-clip: content-box;
+    border-radius: 10px;
+  }
+
+  .expressive-code pre::-webkit-scrollbar-thumb:hover {
+    background-color: var(
+      --ec-scrollbarThumbHoverCol,
+      rgba(148, 163, 184, 0.55)
+    );
+  }
+
+  .expressive-code .code-lang {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.6rem;
+    padding: 0;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    background: none;
+    color: var(--ec-langFg, var(--ec-codeFg, currentColor));
+    font-size: 0.68em;
+    pointer-events: none;
+    opacity: 0.6;
+    transition: opacity 160ms ease, color 160ms ease;
+    z-index: 2;
+  }
+
+  .expressive-code:focus-within .code-lang,
+  .expressive-code:hover .code-lang {
+    opacity: 1;
+    color: var(--ec-langFg, var(--ec-codeFg, currentColor));
+  }
+
+  .expressive-code .copy-button {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.3rem;
+    height: 2.3rem;
+    border-radius: 0.45rem;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    background-color: var(--ec-copyBg, rgba(15, 23, 42, 0.04));
+    color: var(--ec-copyFg, rgba(15, 23, 42, 0.7));
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: auto;
+    transition: opacity 160ms ease, transform 160ms ease,
+      background-color 140ms ease, color 140ms ease;
+    transform: translateY(-0.3rem);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns%3D%27http://www.w3.org/2000/svg%27 viewBox%3D%270 0 24 24%27 fill%3D%27none%27 stroke%3D%27currentColor%27 stroke-width%3D%271.75%27 stroke-linecap%3D%27round%27 stroke-linejoin%3D%27round%27%3E%3Cpath d%3D%27M3 19a2 2 0 0 1-1-2V3a2 2 0 0 1 1-1h13a2 2 0 0 1 2 1%27/%3E%3Crect x%3D%276%27 y%3D%275%27 width%3D%2716%27 height%3D%2718%27 rx%3D%271.6%27 ry%3D%271.6%27/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 60%;
+    z-index: 3;
+  }
+
+  .expressive-code .copy-button:is(:hover, :focus-visible, :active) {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .expressive-code .copy-button:focus-visible {
+    outline: 2px solid rgba(148, 163, 184, 0.55);
+    outline-offset: 2px;
+    background-color: var(--ec-copyBgFocus, rgba(15, 23, 42, 0.16));
+    color: var(--ec-copyFgFocus, rgba(15, 23, 42, 1));
+  }
+
+  .expressive-code .copy-button::before {
+    content: "";
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: transparent;
+    border: none;
+    pointer-events: none;
+  }
+
+  .expressive-code .copy-button::after {
+    content: none;
+    pointer-events: none;
+  }
+
+  .expressive-code .copy-button .copy-label,
+  .expressive-code .copy-button .copy-feedback {
+    display: none;
+  }
+
+  .expressive-code .copy-button:hover {
+    background-color: var(--ec-copyBgHover, rgba(15, 23, 42, 0.12));
+    color: var(--ec-copyFgHover, rgba(15, 23, 42, 0.9));
+  }
+
+  .expressive-code .copy-button span[aria-hidden="true"] {
+    font-family: var(--ec-uiFontFamily, inherit);
+  }
+
+  .expressive-code .ec-header,
+  .expressive-code .ec-footer {
+    display: block;
+    padding: 0.35rem var(--ec-codePadInl, 1.35rem);
+    color: var(--ec-uiFg, currentColor);
+  }
+
+  .expressive-code .ec-header.ec-ext,
+  .expressive-code .ec-footer.ec-ext {
+    padding: 0.25rem var(--ec-codePadInl, 1.35rem);
+  }
+
+  .expressive-code .ec-line {
+    direction: ltr;
+    unicode-bidi: isolate;
+    display: grid;
+    grid-template-areas: "gutter code";
+    grid-template-columns: auto 1fr;
+    column-gap: var(--ec-gutterGap, 0.25rem);
+    position: relative;
+    --lineBg: var(--ec-codeBg, #0d1117);
+    background: var(--lineBg);
+  }
+
+  .expressive-code:not(.has-gutter) .ec-line {
+    grid-template-columns: 1fr;
+  }
+
+  .expressive-code:not(.has-gutter) .ec-line .code {
+    padding-inline: var(--ec-codePadInl, 1.35rem);
+  }
+
+  .expressive-code .ec-line .gutter {
+    grid-area: gutter;
+    color: var(--ec-gtrFg, rgba(148, 163, 184, 0.8));
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: var(--lineBg, var(--ec-gutterBg, var(--ec-codeBg, #0d1117)));
+    box-shadow: 1px 0 0 var(--ec-gtrBrdCol, rgba(148, 163, 184, 0.2));
+  }
+
+  .expressive-code .ec-line .gutter > * {
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .expressive-code .ec-line .gutter ~ .code {
+    --ecLineBrdCol: var(--ec-gtrBrdCol, rgba(148, 163, 184, 0.2));
+  }
+
+  .expressive-code .ec-line.highlight .gutter {
+    color: var(--ec-gtrHighlightFg, rgba(226, 232, 240, 0.95));
+  }
+
+  .expressive-code .ec-line .gutter .ln {
+    display: inline-flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    box-sizing: content-box;
+    min-width: var(--lnWidth, 2ch);
+    padding-inline-start: var(--ec-gutterPadLeft, 0.5rem);
+    padding-inline-end: var(--ec-codePadInl, 1.35rem);
+    font-size: var(--ec-codeFontSize, 0.85rem);
+    font-variant-numeric: tabular-nums;
+    color: inherit;
+  }
+
+  .expressive-code .ec-line .gutter .ln > span + span {
+    margin-inline-start: 0.25em;
+  }
+
+  .expressive-code .ec-line .code {
+    position: relative;
+    z-index: 1;
+  }
+
+  .expressive-code .ec-line .code .indent-overlay {
+    display: none;
+  }
+
+  .expressive-code.has-indent-guides .ec-line .code .indent-overlay {
+    position: absolute;
+    inset: 0 auto 0 0;
+    display: block;
+    /* Shrink overlay by 1px to avoid drawing a vertical guide at the very end of
+       the inline area (prevents an extra line appearing at each row end).
+       Use max(...) to avoid negative values when --ecIndent is small. */
+    width: max(0px, calc(var(--ecIndent, 0) - 2px));
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+      to right,
+      transparent 0,
+      transparent calc(var(--ec-indentStep, 4ch) - 1px),
+      var(--ec-indentGuideCol, rgba(148, 163, 184, 0.35))
+        calc(var(--ec-indentStep, 4ch) - 1px),
+      var(--ec-indentGuideCol, rgba(148, 163, 184, 0.35))
+        var(--ec-indentStep, 4ch)
+    );
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    mix-blend-mode: multiply;
+    opacity: 0.85;
+    z-index: 0;
+  }
+  .expressive-code .ec-comment {
+    grid-column: 1 / -1;
+    padding: 0.55rem calc(var(--ec-codePadInl, 1.35rem) + 0.25rem);
+    font-size: 0.85em;
+    background: var(--ec-commentBg, rgba(56, 189, 248, 0.18));
+    color: var(--ec-commentFg, currentColor);
+    box-shadow: inset 0 1px 0 rgba(15, 23, 42, 0.08),
+      inset 0 -1px 0 rgba(15, 23, 42, 0.06);
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    width: 100cqw;
+    box-sizing: border-box;
+  }
+
+  .expressive-code .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  code.expressive-code-inline {
+    display: inline-block;
+    padding: 0 var(--ec-inlinePadInl, 0.4rem);
+    border-radius: calc(var(--ec-borderRad, 0.3rem) / 1.2);
+    background: var(--ec-inlineBg, rgba(148, 163, 184, 0.2));
+    color: var(--ec-inlineFg, inherit);
+    font-family: var(
+      --ec-codeFontFamily,
+      ui-monospace,
+      SFMono-Regular,
+      Menlo,
+      Monaco,
+      Consolas,
+      "Liberation Mono",
+      "Courier New",
+      monospace
+    );
+    font-size: 0.95em;
+    line-height: 1.2;
+    white-space: pre;
+  }
+}
+</style><h2>In which the CPU changes my data under my nose</h2><h5>15 May, 2018</h5><p>IEEE 754 has been the source of jokes and confusion for a while because of its <a href="https://0.30000000000000004.com/">imprecise representation of decimal numbers</a>, but the truth is that it’s an easily-implementable, efficient representation of floating-point numbers and a lot of applications that don’t need high precision couldn’t easily do without it. It’s not without its peculiarities though. Or rather, pecularity, singular. Specifically, the existence of NaN. NaN is a weird beast, taking up <a href="https://en.wikipedia.org/wiki/Single-precision_floating-point_format#Exponent_encoding">16777208</a> possible values that could have otherwise been used for real data (although some sneaky people get away with using them <a href="https://softwareengineering.stackexchange.com/questions/185406/what-is-the-purpose-of-nan-boxing">for special values</a>) and <a href="https://doc.rust-lang.org/std/cmp/trait.PartialOrd.html">forcing Rust to split its comparison traits into “partial” and “total” variants</a>. A lot of developer time and effort has been spent working out precisely how to handle NaN, and this is the story of my recent personal contribution to that time and effort.</p><p>This particular story about NaN starts with a strange bug in <a href="https://github.com/paritytech/wasmi"><code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">wasmi</code></a>, our experimental WebAssembly interpreter for blockchains here at <a href="https://github.com/paritytech/">Parity</a>. The tests were failing when compiled for 32-bit, but not for 64-bit. After rewriting our WebAssembly test harness to correctly report failures, I narrowed it down to a few test cases that looked something like the following:</p><div class="expressive-code has-gutter" style="--ec-borderRad:0.34em;--ec-codePadBlk:0.34em;--ec-codePadInl:0.34em;--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-langBg:#effbf9;--ec-langFg:#000000;--ec-copyBg:#f7f7f7;--ec-copyFg:#000000;--ec-gutterBg:#f5f5f5;--ec-gutterGap:0.25rem;--ec-gutterPadLeft:0.5rem;--ec-codeFontSize:0.85em;--ec-codeLineHeight:1.5;--ec-copyBgHover:#f8f8f8;--ec-copyBgFocus:#f8f8f8;--ec-copyFgHover:#000000;--ec-copyFgFocus:#000000;--ec-hlBg:#dff6f2;--ec-commentBg:#effbf9;--ec-gtrFg:#999999;--ec-gtrHighlightFg:#737373;--ec-gtrBrdCol:#999999a6"><div class="code-lang" translate="no">lisp</div><button type="button" class="copy-button" title="Copy code" data-state="idle" aria-label="Copy code"><span class="sr-only">Copy code</span><span class="copy-label" aria-hidden="true">Copy</span><span class="copy-feedback" aria-hidden="true">Copied!</span></button><pre data-language="lisp" class="wrap" style="--lnWidth:2ch"><code class="language-lisp"><div class="ec-header ec-ext" style="background:#f5f5f5"></div><div class="ec-line"><div class="gutter"><div class="ln">1</div></div><div class="code" data-indent>(<span style="color: #4b69c6">module</span></div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">2</div></div><div class="code" data-indent="  ">  <span style="color: #74747c">;;</span><span style="color: #74747c"> ...</span></div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">3</div></div><div class="code" data-indent="  ">  (<span style="color: #4b69c6">func</span> (<span style="color: #4b69c6">export</span> <span style="color: #198810">"</span><span style="color: #198810">f32.reinterpret_i32</span><span style="color: #198810">"</span>) (<span style="color: #4b69c6">param</span> $x i32)</div></div><div class="ec-line" style="--ecIndent:39ch"><div class="gutter"><div class="ln">4</div></div><div class="code" data-indent="                                       ">                                       (<span style="color: #4b69c6">result</span> f32)</div></div><div class="ec-line" style="--ecIndent:8ch"><div class="gutter"><div class="ln">5</div></div><div class="code" data-indent="        ">        (<span style="color: #4b69c6">f32.reinterpret/i32</span> (<span style="color: #4b69c6">get_local</span> $x)))</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">6</div></div><div class="code" data-indent="  ">  (<span style="color: #4b69c6">func</span> (<span style="color: #4b69c6">export</span> <span style="color: #198810">"</span><span style="color: #198810">i32.reinterpret_f32</span><span style="color: #198810">"</span>) (<span style="color: #4b69c6">param</span> $x f32)</div></div><div class="ec-line" style="--ecIndent:39ch"><div class="gutter"><div class="ln">7</div></div><div class="code" data-indent="                                       ">                                       (<span style="color: #4b69c6">result</span> i32)</div></div><div class="ec-line" style="--ecIndent:8ch"><div class="gutter"><div class="ln">8</div></div><div class="code" data-indent="        ">        (<span style="color: #4b69c6">i32.reinterpret/f32</span> (<span style="color: #4b69c6">get_local</span> $x)))</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">9</div></div><div class="code" data-indent="  ">  <span style="color: #74747c">;;</span><span style="color: #74747c"> ...</span></div></div><div class="ec-line"><div class="gutter"><div class="ln">10</div></div><div class="code" data-indent>)</div></div><div class="ec-line"><div class="gutter"><div class="ln">11</div></div><div class="code" data-indent></div></div><div class="ec-line"><div class="gutter"><div class="ln">12</div></div><div class="code" data-indent><span style="color: #74747c">;;</span><span style="color: #74747c"> ...</span></div></div><div class="ec-line"><div class="gutter"><div class="ln">13</div></div><div class="code" data-indent></div></div><div class="ec-line"><div class="gutter"><div class="ln">14</div></div><div class="code" data-indent>(<span style="color: #4b69c6">assert_return</span> (<span style="color: #4b69c6">invoke</span> <span style="color: #198810">"</span><span style="color: #198810">f32.reinterpret_i32</span><span style="color: #198810">"</span></div></div><div class="ec-line" style="--ecIndent:23ch"><div class="gutter"><div class="ln">15</div></div><div class="code" data-indent="                       ">                       (<span style="color: #4b69c6">i32.const</span> 0x7fa00000))</div></div><div class="ec-line" style="--ecIndent:15ch"><div class="gutter"><div class="ln">16</div></div><div class="code" data-indent="               ">               (<span style="color: #4b69c6">f32.const</span> nan:0x200000)) </div></div><div class="ec-line"><div class="gutter"><div class="ln">17</div></div><div class="code" data-indent>(<span style="color: #4b69c6">assert_return</span> (<span style="color: #4b69c6">invoke</span> <span style="color: #198810">"</span><span style="color: #198810">f32.reinterpret_i32</span><span style="color: #198810">"</span></div></div><div class="ec-line" style="--ecIndent:23ch"><div class="gutter"><div class="ln">18</div></div><div class="code" data-indent="                       ">                       (<span style="color: #4b69c6">i32.const</span> 0xffa00000))</div></div><div class="ec-line" style="--ecIndent:15ch"><div class="gutter"><div class="ln">19</div></div><div class="code" data-indent="               ">               (<span style="color: #4b69c6">f32.const</span> -nan:0x200000))</div></div><div class="ec-line"><div class="gutter"><div class="ln">20</div></div><div class="code" data-indent>(<span style="color: #4b69c6">assert_return</span> (<span style="color: #4b69c6">invoke</span> <span style="color: #198810">"</span><span style="color: #198810">i32.reinterpret_f32</span><span style="color: #198810">"</span></div></div><div class="ec-line" style="--ecIndent:23ch"><div class="gutter"><div class="ln">21</div></div><div class="code" data-indent="                       ">                       (<span style="color: #4b69c6">f32.const</span> nan:0x200000))</div></div><div class="ec-line" style="--ecIndent:15ch"><div class="gutter"><div class="ln">22</div></div><div class="code" data-indent="               ">               (<span style="color: #4b69c6">i32.const</span> 0x7fa00000)) </div></div><div class="ec-line"><div class="gutter"><div class="ln">23</div></div><div class="code" data-indent>(<span style="color: #4b69c6">assert_return</span> (<span style="color: #4b69c6">invoke</span> <span style="color: #198810">"</span><span style="color: #198810">i32.reinterpret_f32</span><span style="color: #198810">"</span></div></div><div class="ec-line" style="--ecIndent:23ch"><div class="gutter"><div class="ln">24</div></div><div class="code" data-indent="                       ">                       (<span style="color: #4b69c6">f32.const</span> -nan:0x200000))</div></div><div class="ec-line" style="--ecIndent:15ch"><div class="gutter"><div class="ln">25</div></div><div class="code" data-indent="               ">               (<span style="color: #4b69c6">i32.const</span> 0xffa00000))</div></div><div class="ec-line" style="--ecIndent:15ch"><div class="gutter"><div class="ln">26</div></div><div class="code" data-indent="               "></div></div><div class="ec-footer ec-ext" style="background:#f5f5f5"></div></code></pre></div><p>All other tests were succeeding, but doing a bitwise cast from integer to float and vice-versa was failing. Furthermore, these tests all succeeded on x86_64 (i.e. when compiled for 64-bit), they only failed on x86 (i.e. when compiled for 32-bit). Lastly, the difference between the expected value and the received value was only one bit. Instead of returning a float with the bit pattern <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">0x7fa00000</code> it would return <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">0x7fe00000</code> instead. If you’ve worked with NaNs before, you might have noticed something:</p><div class="expressive-code has-gutter" style="--ec-borderRad:0.34em;--ec-codePadBlk:0.34em;--ec-codePadInl:0.34em;--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-langBg:#effbf9;--ec-langFg:#000000;--ec-copyBg:#f7f7f7;--ec-copyFg:#000000;--ec-gutterBg:#f5f5f5;--ec-gutterGap:0.25rem;--ec-gutterPadLeft:0.5rem;--ec-codeFontSize:0.85em;--ec-codeLineHeight:1.5;--ec-copyBgHover:#f8f8f8;--ec-copyBgFocus:#f8f8f8;--ec-copyFgHover:#000000;--ec-copyFgFocus:#000000;--ec-hlBg:#dff6f2;--ec-commentBg:#effbf9;--ec-gtrFg:#999999;--ec-gtrHighlightFg:#737373;--ec-gtrBrdCol:#999999a6"><button type="button" class="copy-button" title="Copy code" data-state="idle" aria-label="Copy code"><span class="sr-only">Copy code</span><span class="copy-label" aria-hidden="true">Copy</span><span class="copy-feedback" aria-hidden="true">Copied!</span></button><pre data-language="plaintext" class="wrap" style="--lnWidth:2ch"><code><div class="ec-header ec-ext" style="background:#f5f5f5"></div><div class="ec-line"><div class="gutter"><div class="ln">1</div></div><div class="code" data-indent>Expected: 0b11111111010000000000000000000000000</div></div><div class="ec-line"><div class="gutter"><div class="ln">2</div></div><div class="code" data-indent>Got:      0b11111111110000000000000000000000000</div></div><div class="ec-line" style="--ecIndent:20ch"><div class="gutter"><div class="ln">3</div></div><div class="code" data-indent="                    ">                    ^ This bit is different</div></div><div class="ec-line" style="--ecIndent:20ch"><div class="gutter"><div class="ln">4</div></div><div class="code" data-indent="                    "></div></div><div class="ec-footer ec-ext" style="background:#f5f5f5"></div></code></pre></div><p>That’s right, it’s the <a href="https://en.wikipedia.org/wiki/NaN#Signaling_NaN">quiet bit</a>! For those unaware, the quiet bit determines whether or not the number should raise an exception when you attempt to use it. This is because the <a href="https://en.wikipedia.org/wiki/IEEE_754">IEEE 754 standard</a> was written at a time when it wasn’t necessarily expected that a programming language would include exceptions. The standard includes provisions to allow hardware-level exceptions when, for example, dividing zero by zero. The idea is that when the hardware tries to execute an invalid floating point operation it is allowed to generate a “signalling NaN”, or sNaN. This is what we see above - the quiet bit is set to 0, meaning that the NaN is signalling<sup id="ieee-x86" role="doc-noteref"><a href="#loc-1">1</a></sup>. When you try to use this value (for example, by multiplying it with another number) the hardware is allowed to generate an exception and then return a “quiet NaN”, or qNaN, which has the quiet bit set to 1. I say “allowed to” rather than “does” or “should” because IEEE 754 leaves this unspecified, and in fact as far as I can tell x86 and ARM never generate sNaNs, the only way to create them is to reinterpret an integer with the signalling bit set. Originally, I thought the source of the problem was obvious: <a href="https://github.com/rust-lang/rust/pull/39271">Rust was quieting NaN when casting an int to a float</a>. I remember seeing <a href="https://github.com/tomaka">tomaka</a>’s<sup id="troubles" role="doc-noteref"><a href="#loc-2">2</a></sup> talk at RustFest 2017 on binding C libraries where he mentioned that Rust guarantees that all NaNs are quiet and that you have to explicitly handle that when using floats returned from C (where sNaNs are allowed). So I checked the source of <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">f32::from_bits</code> and… <a href="https://github.com/rust-lang/rust/blob/8010604b2d888ac839147fe27de76cdcc713aa1b/src/libcore/num/f32.rs#L270-L275">nope</a>. It just does a normal reintepret. Turns out tomaka’s advice was out of date, and Rust <a href="https://github.com/rust-lang/rust/pull/46012/commits/439576fd7bedf741db5fb6a21c902e858d51f2a0">now allows sNaNs</a></p><p>So the hunt was on - where are we operating on this float value? Looking at the code it looked like we just take the number directly from the WebAssembly bytecode and interpret it as a float, no operations required. The bytecode must be correct - after all, the same code compiled for 64-bit worked correctly, and they both read the same bytecode. Since reading the code wasn’t helping me at all, I opened up the LLDB debugger<sup id="lldb-debugger" role="doc-noteref"><a href="#loc-3">3</a></sup> and attached it to the test binary that is output by <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">cargo test --no-run</code>. Stepping through functions and checking their return value, I eventually found the culprit:</p><div class="expressive-code has-gutter" style="--ec-borderRad:0.34em;--ec-codePadBlk:0.34em;--ec-codePadInl:0.34em;--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-langBg:#effbf9;--ec-langFg:#000000;--ec-copyBg:#f7f7f7;--ec-copyFg:#000000;--ec-gutterBg:#f5f5f5;--ec-gutterGap:0.25rem;--ec-gutterPadLeft:0.5rem;--ec-codeFontSize:0.85em;--ec-codeLineHeight:1.5;--ec-copyBgHover:#f8f8f8;--ec-copyBgFocus:#f8f8f8;--ec-copyFgHover:#000000;--ec-copyFgFocus:#000000;--ec-hlBg:#dff6f2;--ec-commentBg:#effbf9;--ec-gtrFg:#999999;--ec-gtrHighlightFg:#737373;--ec-gtrBrdCol:#999999a6"><div class="code-lang" translate="no">rust</div><button type="button" class="copy-button" title="Copy code" data-state="idle" aria-label="Copy code"><span class="sr-only">Copy code</span><span class="copy-label" aria-hidden="true">Copy</span><span class="copy-feedback" aria-hidden="true">Copied!</span></button><pre data-language="rust" class="wrap" style="--lnWidth:2ch"><code class="language-rust"><div class="ec-header ec-ext" style="background:#f5f5f5"></div><div class="ec-line"><div class="gutter"><div class="ln">1</div></div><div class="code" data-indent><span style="color: #d73948">fn</span> <span style="color: #4b69c6">run_reinterpret</span>&lt;T, U>(</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">2</div></div><div class="code" data-indent="  ">  <span style="color: #d73948">&amp;</span><span style="color: #d73948">mut</span> self,</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">3</div></div><div class="code" data-indent="  ">  context: <span style="color: #d73948">&amp;</span><span style="color: #d73948">mut</span> FunctionContext</div></div><div class="ec-line"><div class="gutter"><div class="ln">4</div></div><div class="code" data-indent>) -> <span style="color: #4b69c6">Result</span>&lt;InstructionOutcome, TrapKind></div></div><div class="ec-line"><div class="gutter"><div class="ln">5</div></div><div class="code" data-indent><span style="color: #d73948">where</span></div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">6</div></div><div class="code" data-indent="  ">  RuntimeValue: <span style="color: #4b69c6">From</span>&lt;U>,</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">7</div></div><div class="code" data-indent="  ">  T: FromRuntimeValue,</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">8</div></div><div class="code" data-indent="  ">  T: TransmuteInto&lt;U></div></div><div class="ec-line"><div class="gutter"><div class="ln">9</div></div><div class="code" data-indent>{</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">10</div></div><div class="code" data-indent="  ">  <span style="color: #d73948">let</span> v <span style="color: #d73948">=</span> context</div></div><div class="ec-line" style="--ecIndent:4ch"><div class="gutter"><div class="ln">11</div></div><div class="code" data-indent="    ">    .<span style="color: #4b69c6">value_stack_mut</span>()</div></div><div class="ec-line" style="--ecIndent:4ch"><div class="gutter"><div class="ln">12</div></div><div class="code" data-indent="    ">    .pop_as::&lt;T>();</div></div><div class="ec-line" style="--ecIndent:4ch"><div class="gutter"><div class="ln">13</div></div><div class="code" data-indent="    "></div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">14</div></div><div class="code" data-indent="  ">  <span style="color: #d73948">let</span> v <span style="color: #d73948">=</span> v.<span style="color: #4b69c6">transmute_into</span>();</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">15</div></div><div class="code" data-indent="  ">  <span style="color: #74747c">//</span><span style="color: #74747c">      ^-This call here-^</span></div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">16</div></div><div class="code" data-indent="  "></div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">17</div></div><div class="code" data-indent="  ">  context.<span style="color: #4b69c6">value_stack_mut</span>().<span style="color: #4b69c6">push</span>(v.<span style="color: #4b69c6">into</span>())<span style="color: #d73948">?</span>;</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">18</div></div><div class="code" data-indent="  "></div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">19</div></div><div class="code" data-indent="  ">  <span style="color: #4b69c6">Ok</span>(InstructionOutcome::RunNextInstruction)</div></div><div class="ec-line"><div class="gutter"><div class="ln">20</div></div><div class="code" data-indent>}</div></div><div class="ec-line"><div class="gutter"><div class="ln">21</div></div><div class="code" data-indent></div></div><div class="ec-footer ec-ext" style="background:#f5f5f5"></div></code></pre></div><p>That <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">v.transmute_into()</code> call was returning <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">0x7fe00000</code> instead of <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">0x7fa00000</code>! Hang on, like the name implies, <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">v.transmute_into()</code> should just be a transmute, it should just reinterpret the bits. I looked at the source code, and sure enough:</p><div class="expressive-code has-gutter" style="--ec-borderRad:0.34em;--ec-codePadBlk:0.34em;--ec-codePadInl:0.34em;--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-langBg:#effbf9;--ec-langFg:#000000;--ec-copyBg:#f7f7f7;--ec-copyFg:#000000;--ec-gutterBg:#f5f5f5;--ec-gutterGap:0.25rem;--ec-gutterPadLeft:0.5rem;--ec-codeFontSize:0.85em;--ec-codeLineHeight:1.5;--ec-copyBgHover:#f8f8f8;--ec-copyBgFocus:#f8f8f8;--ec-copyFgHover:#000000;--ec-copyFgFocus:#000000;--ec-hlBg:#dff6f2;--ec-commentBg:#effbf9;--ec-gtrFg:#999999;--ec-gtrHighlightFg:#737373;--ec-gtrBrdCol:#999999a6"><div class="code-lang" translate="no">rust</div><button type="button" class="copy-button" title="Copy code" data-state="idle" aria-label="Copy code"><span class="sr-only">Copy code</span><span class="copy-label" aria-hidden="true">Copy</span><span class="copy-feedback" aria-hidden="true">Copied!</span></button><pre data-language="rust" class="wrap" style="--lnWidth:2ch"><code class="language-rust"><div class="ec-header ec-ext" style="background:#f5f5f5"></div><div class="ec-line"><div class="gutter"><div class="ln">1</div></div><div class="code" data-indent><span style="color: #d73948">impl</span> TransmuteInto&lt;<span style="color: #d73948">f32</span>> <span style="color: #d73948">for</span> <span style="color: #4b69c6">i32</span> {</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">2</div></div><div class="code" data-indent="  ">  <span style="color: #d73948">fn</span> <span style="color: #4b69c6">transmute_into</span>(self) -> <span style="color: #d73948">f32</span> {</div></div><div class="ec-line" style="--ecIndent:4ch"><div class="gutter"><div class="ln">3</div></div><div class="code" data-indent="    ">    <span style="color: #d73948">f32</span>::from_bits(<span style="color: #d73948">self</span>)</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">4</div></div><div class="code" data-indent="  ">  }</div></div><div class="ec-line"><div class="gutter"><div class="ln">5</div></div><div class="code" data-indent>}</div></div><div class="ec-line"><div class="gutter"><div class="ln">6</div></div><div class="code" data-indent></div></div><div class="ec-footer ec-ext" style="background:#f5f5f5"></div></code></pre></div><p>We’re back where we started. As we saw before, <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">f32::from_bits</code> is just a transmute. Originally I thought it was an old version of the standard library, so I wrote a quick test:</p><div class="expressive-code has-gutter" style="--ec-borderRad:0.34em;--ec-codePadBlk:0.34em;--ec-codePadInl:0.34em;--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-langBg:#effbf9;--ec-langFg:#000000;--ec-copyBg:#f7f7f7;--ec-copyFg:#000000;--ec-gutterBg:#f5f5f5;--ec-gutterGap:0.25rem;--ec-gutterPadLeft:0.5rem;--ec-codeFontSize:0.85em;--ec-codeLineHeight:1.5;--ec-copyBgHover:#f8f8f8;--ec-copyBgFocus:#f8f8f8;--ec-copyFgHover:#000000;--ec-copyFgFocus:#000000;--ec-hlBg:#dff6f2;--ec-commentBg:#effbf9;--ec-gtrFg:#999999;--ec-gtrHighlightFg:#737373;--ec-gtrBrdCol:#999999a6"><div class="code-lang" translate="no">rust</div><button type="button" class="copy-button" title="Copy code" data-state="idle" aria-label="Copy code"><span class="sr-only">Copy code</span><span class="copy-label" aria-hidden="true">Copy</span><span class="copy-feedback" aria-hidden="true">Copied!</span></button><pre data-language="rust" class="wrap" style="--lnWidth:2ch"><code class="language-rust"><div class="ec-header ec-ext" style="background:#f5f5f5"></div><div class="ec-line"><div class="gutter"><div class="ln">1</div></div><div class="code" data-indent><span style="color: #d73948">use</span> test::black_box <span style="color: #d73948">as</span> bb;</div></div><div class="ec-line"><div class="gutter"><div class="ln">2</div></div><div class="code" data-indent></div></div><div class="ec-line"><div class="gutter"><div class="ln">3</div></div><div class="code" data-indent><span style="color: #301414">#</span><span style="color: #301414">[</span><span style="color: #301414">test</span><span style="color: #301414">]</span></div></div><div class="ec-line"><div class="gutter"><div class="ln">4</div></div><div class="code" data-indent><span style="color: #d73948">fn</span> <span style="color: #4b69c6">it_works</span>() {</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">5</div></div><div class="code" data-indent="  ">  <span style="color: #16718d">assert_eq!</span>(</div></div><div class="ec-line" style="--ecIndent:4ch"><div class="gutter"><div class="ln">6</div></div><div class="code" data-indent="    ">    <span style="color: #4b69c6">bb</span>(<span style="color: #b60157">0xffa00000</span>),</div></div><div class="ec-line" style="--ecIndent:4ch"><div class="gutter"><div class="ln">7</div></div><div class="code" data-indent="    ">    <span style="color: #4b69c6">bb</span>(</div></div><div class="ec-line" style="--ecIndent:6ch"><div class="gutter"><div class="ln">8</div></div><div class="code" data-indent="      ">      <span style="color: #4b69c6">bb</span>(<span style="color: #d73948">f32</span>::from_bits(<span style="color: #4b69c6">bb</span>(<span style="color: #b60157">0xffa00000</span>)))</div></div><div class="ec-line" style="--ecIndent:8ch"><div class="gutter"><div class="ln">9</div></div><div class="code" data-indent="        ">        .<span style="color: #4b69c6">to_bits</span>()</div></div><div class="ec-line" style="--ecIndent:4ch"><div class="gutter"><div class="ln">10</div></div><div class="code" data-indent="    ">    )</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">11</div></div><div class="code" data-indent="  ">  );</div></div><div class="ec-line"><div class="gutter"><div class="ln">12</div></div><div class="code" data-indent>}</div></div><div class="ec-line"><div class="gutter"><div class="ln">13</div></div><div class="code" data-indent></div></div><div class="ec-footer ec-ext" style="background:#f5f5f5"></div></code></pre></div><p>The <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">black_box</code>/<code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">bb</code> function just ensures that the compiler doesn’t optimise anything out. This particular test succeeds, though, even on x86 (i.e. 32-bit, the same architecture where our <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">wasmi</code> test suite fails). So I went back to <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">f32::from_bits</code> in the compiled output for <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">wasmi</code> and disassembled it with LLDB.</p><div class="expressive-code has-gutter" style="--ec-borderRad:0.34em;--ec-codePadBlk:0.34em;--ec-codePadInl:0.34em;--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-langBg:#effbf9;--ec-langFg:#000000;--ec-copyBg:#f7f7f7;--ec-copyFg:#000000;--ec-gutterBg:#f5f5f5;--ec-gutterGap:0.25rem;--ec-gutterPadLeft:0.5rem;--ec-codeFontSize:0.85em;--ec-codeLineHeight:1.5;--ec-copyBgHover:#f8f8f8;--ec-copyBgFocus:#f8f8f8;--ec-copyFgHover:#000000;--ec-copyFgFocus:#000000;--ec-hlBg:#dff6f2;--ec-commentBg:#effbf9;--ec-gtrFg:#999999;--ec-gtrHighlightFg:#737373;--ec-gtrBrdCol:#999999a6"><div class="code-lang" translate="no">gas</div><button type="button" class="copy-button" title="Copy code" data-state="idle" aria-label="Copy code"><span class="sr-only">Copy code</span><span class="copy-label" aria-hidden="true">Copy</span><span class="copy-feedback" aria-hidden="true">Copied!</span></button><pre data-language="gas" class="wrap" style="--lnWidth:2ch"><code class="language-gas"><div class="ec-header ec-ext" style="background:#f5f5f5"></div><div class="ec-line"><div class="gutter"><div class="ln">1</div></div><div class="code" data-indent>core::f32::&lt;impl core::num::Float for f32>::from_bits:</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">2</div></div><div class="code" data-indent="  ">  pushl  %ebp</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">3</div></div><div class="code" data-indent="  ">  movl   %esp,        %ebp</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">4</div></div><div class="code" data-indent="  ">  subl   $0x10,       %esp</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">5</div></div><div class="code" data-indent="  ">  movl   0x8(%ebp),   %eax</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">6</div></div><div class="code" data-indent="  ">  movl   0x8(%ebp),   %ecx</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">7</div></div><div class="code" data-indent="  ">  movl   %ecx,        -0x4(%ebp)</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">8</div></div><div class="code" data-indent="  ">  movss  -0x4(%ebp),  %xmm0</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">9</div></div><div class="code" data-indent="  ">  movl   %eax,        -0xc(%ebp)</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">10</div></div><div class="code" data-indent="  ">  movss  %xmm0,       -0x10(%ebp)</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">11</div></div><div class="code" data-indent="  ">  movss  -0x10(%ebp), %xmm0</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">12</div></div><div class="code" data-indent="  ">  movss  %xmm0,       -0x8(%ebp)</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">13</div></div><div class="code" data-indent="  ">  flds   -0x8(%ebp)</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">14</div></div><div class="code" data-indent="  ">  addl   $0x10,       %esp</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">15</div></div><div class="code" data-indent="  ">  popl   %ebp</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">16</div></div><div class="code" data-indent="  ">  retl   </div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">17</div></div><div class="code" data-indent="  "></div></div><div class="ec-footer ec-ext" style="background:#f5f5f5"></div></code></pre></div><p>At first glance, that looks like it’s doing a bunch more stuff than just a transmute, but it’s actually just moving data about because the test harness is compiled without optimisations by default. If you turn optimisations on, this just compiles to:</p><div class="expressive-code has-gutter" style="--ec-borderRad:0.34em;--ec-codePadBlk:0.34em;--ec-codePadInl:0.34em;--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-langBg:#effbf9;--ec-langFg:#000000;--ec-copyBg:#f7f7f7;--ec-copyFg:#000000;--ec-gutterBg:#f5f5f5;--ec-gutterGap:0.25rem;--ec-gutterPadLeft:0.5rem;--ec-codeFontSize:0.85em;--ec-codeLineHeight:1.5;--ec-copyBgHover:#f8f8f8;--ec-copyBgFocus:#f8f8f8;--ec-copyFgHover:#000000;--ec-copyFgFocus:#000000;--ec-hlBg:#dff6f2;--ec-commentBg:#effbf9;--ec-gtrFg:#999999;--ec-gtrHighlightFg:#737373;--ec-gtrBrdCol:#999999a6"><div class="code-lang" translate="no">gas</div><button type="button" class="copy-button" title="Copy code" data-state="idle" aria-label="Copy code"><span class="sr-only">Copy code</span><span class="copy-label" aria-hidden="true">Copy</span><span class="copy-feedback" aria-hidden="true">Copied!</span></button><pre data-language="gas" class="wrap" style="--lnWidth:2ch"><code class="language-gas"><div class="ec-header ec-ext" style="background:#f5f5f5"></div><div class="ec-line"><div class="gutter"><div class="ln">1</div></div><div class="code" data-indent>core::f32::&lt;impl core::num::Float for f32>::from_bits:</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">2</div></div><div class="code" data-indent="  ">  flds   0x4(%esp)</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">3</div></div><div class="code" data-indent="  ">  retl   </div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">4</div></div><div class="code" data-indent="  "></div></div><div class="ec-footer ec-ext" style="background:#f5f5f5"></div></code></pre></div><p>Hang on, what’s this <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">flds</code> instruction? We see it in the debug version above, too. It’s not there if you disassemble the build for 64-bit:</p><div class="expressive-code has-gutter" style="--ec-borderRad:0.34em;--ec-codePadBlk:0.34em;--ec-codePadInl:0.34em;--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-langBg:#effbf9;--ec-langFg:#000000;--ec-copyBg:#f7f7f7;--ec-copyFg:#000000;--ec-gutterBg:#f5f5f5;--ec-gutterGap:0.25rem;--ec-gutterPadLeft:0.5rem;--ec-codeFontSize:0.85em;--ec-codeLineHeight:1.5;--ec-copyBgHover:#f8f8f8;--ec-copyBgFocus:#f8f8f8;--ec-copyFgHover:#000000;--ec-copyFgFocus:#000000;--ec-hlBg:#dff6f2;--ec-commentBg:#effbf9;--ec-gtrFg:#999999;--ec-gtrHighlightFg:#737373;--ec-gtrBrdCol:#999999a6"><div class="code-lang" translate="no">gas</div><button type="button" class="copy-button" title="Copy code" data-state="idle" aria-label="Copy code"><span class="sr-only">Copy code</span><span class="copy-label" aria-hidden="true">Copy</span><span class="copy-feedback" aria-hidden="true">Copied!</span></button><pre data-language="gas" class="wrap" style="--lnWidth:2ch"><code class="language-gas"><div class="ec-header ec-ext" style="background:#f5f5f5"></div><div class="ec-line"><div class="gutter"><div class="ln">1</div></div><div class="code" data-indent>core::f32::&lt;impl core::num::Float for f32>::from_bits:</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">2</div></div><div class="code" data-indent="  ">  movd   %edi, %xmm0</div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">3</div></div><div class="code" data-indent="  ">  retq   </div></div><div class="ec-line" style="--ecIndent:2ch"><div class="gutter"><div class="ln">4</div></div><div class="code" data-indent="  "></div></div><div class="ec-footer ec-ext" style="background:#f5f5f5"></div></code></pre></div><p>So what does it do? I’m pretty familiar with x86 assembly, but I’d never seen this instruction before. Googling it brings up <a href="https://c9x.me/x86/html/file_module_x86_id_100.html">this page in the x86 reference</a>, which says that it pushes the argument onto the FPU register stack. See, what most people call x86 is actually an extension known as <a href="https://en.wikipedia.org/wiki/X87">x87</a>, which implementes floating point operations on top of x86. One common <a href="https://en.wikipedia.org/wiki/X86_calling_conventions">calling convention</a> for x87 is to return integer arguments in <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">%eax</code> and floating point arguments on the FPU stack, using the <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">fstps</code> instruction to load the returned value after control is returned to the caller. This is what <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">flds</code> is doing here, returning the argument as a float. Ah, but whenever the CPU operates on a float it’s allowed to quieten it, and sure enough <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">fld</code> quietens sNaNs that were passed to it. With LLDB we can read the state of the registers and memory, so let’s check out what happens between <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">flds</code> and <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">fstps</code>.</p><div class="expressive-code has-gutter" style="--ec-borderRad:0.34em;--ec-codePadBlk:0.34em;--ec-codePadInl:0.34em;--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-langBg:#effbf9;--ec-langFg:#000000;--ec-copyBg:#f7f7f7;--ec-copyFg:#000000;--ec-gutterBg:#f5f5f5;--ec-gutterGap:0.25rem;--ec-gutterPadLeft:0.5rem;--ec-codeFontSize:0.85em;--ec-codeLineHeight:1.5;--ec-copyBgHover:#f8f8f8;--ec-copyBgFocus:#f8f8f8;--ec-copyFgHover:#000000;--ec-copyFgFocus:#000000;--ec-hlBg:#dff6f2;--ec-commentBg:#effbf9;--ec-gtrFg:#999999;--ec-gtrHighlightFg:#737373;--ec-gtrBrdCol:#999999a6"><button type="button" class="copy-button" title="Copy code" data-state="idle" aria-label="Copy code"><span class="sr-only">Copy code</span><span class="copy-label" aria-hidden="true">Copy</span><span class="copy-feedback" aria-hidden="true">Copied!</span></button><pre data-language="plaintext" class="wrap" style="--lnWidth:2ch"><code><div class="ec-header ec-ext" style="background:#f5f5f5"></div><div class="ec-line"><div class="gutter"><div class="ln">1</div></div><div class="code" data-indent>(lldb) run</div></div><div class="ec-line"><div class="gutter"><div class="ln">2</div></div><div class="code" data-indent>## SNIP ##</div></div><div class="ec-line"><div class="gutter"><div class="ln">3</div></div><div class="code" data-indent>->  0x5655b5e0 &lt;+0>: flds   0x4(%esp)</div></div><div class="ec-line" style="--ecIndent:4ch"><div class="gutter"><div class="ln">4</div></div><div class="code" data-indent="    ">    0x5655b5e4 &lt;+4>: retl   </div></div><div class="ec-line"><div class="gutter"><div class="ln">5</div></div><div class="code" data-indent>## SNIP ##</div></div><div class="ec-line"><div class="gutter"><div class="ln">6</div></div><div class="code" data-indent></div></div><div class="ec-footer ec-ext" style="background:#f5f5f5"></div></code></pre></div><p>You can see that we’ve stopped on our problematic <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">flds</code> instruction. Let’s check out the data pointed to by <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">0x4(%esp)</code> (i.e. <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">%esp</code> plus <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">0x4</code>).</p><div class="expressive-code has-gutter" style="--ec-borderRad:0.34em;--ec-codePadBlk:0.34em;--ec-codePadInl:0.34em;--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-langBg:#effbf9;--ec-langFg:#000000;--ec-copyBg:#f7f7f7;--ec-copyFg:#000000;--ec-gutterBg:#f5f5f5;--ec-gutterGap:0.25rem;--ec-gutterPadLeft:0.5rem;--ec-codeFontSize:0.85em;--ec-codeLineHeight:1.5;--ec-copyBgHover:#f8f8f8;--ec-copyBgFocus:#f8f8f8;--ec-copyFgHover:#000000;--ec-copyFgFocus:#000000;--ec-hlBg:#dff6f2;--ec-commentBg:#effbf9;--ec-gtrFg:#999999;--ec-gtrHighlightFg:#737373;--ec-gtrBrdCol:#999999a6"><button type="button" class="copy-button" title="Copy code" data-state="idle" aria-label="Copy code"><span class="sr-only">Copy code</span><span class="copy-label" aria-hidden="true">Copy</span><span class="copy-feedback" aria-hidden="true">Copied!</span></button><pre data-language="plaintext" class="wrap" style="--lnWidth:2ch"><code><div class="ec-header ec-ext" style="background:#f5f5f5"></div><div class="ec-line"><div class="gutter"><div class="ln">1</div></div><div class="code" data-indent>(lldb) register read esp</div></div><div class="ec-line" style="--ecIndent:4ch"><div class="gutter"><div class="ln">2</div></div><div class="code" data-indent="    ">    esp = 0xf77fee3c</div></div><div class="ec-line"><div class="gutter"><div class="ln">3</div></div><div class="code" data-indent>(lldb) x/xw '0xf77fee3c + 0x4'</div></div><div class="ec-line"><div class="gutter"><div class="ln">4</div></div><div class="code" data-indent>0xf77fee40: 0xffa00000</div></div><div class="ec-line"><div class="gutter"><div class="ln">5</div></div><div class="code" data-indent></div></div><div class="ec-footer ec-ext" style="background:#f5f5f5"></div></code></pre></div><p>There we go, that’s our signalling NaN. So it’s passed into the function OK. Let’s see what happens in the calling code:</p><div class="expressive-code has-gutter" style="--ec-borderRad:0.34em;--ec-codePadBlk:0.34em;--ec-codePadInl:0.34em;--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-langBg:#effbf9;--ec-langFg:#000000;--ec-copyBg:#f7f7f7;--ec-copyFg:#000000;--ec-gutterBg:#f5f5f5;--ec-gutterGap:0.25rem;--ec-gutterPadLeft:0.5rem;--ec-codeFontSize:0.85em;--ec-codeLineHeight:1.5;--ec-copyBgHover:#f8f8f8;--ec-copyBgFocus:#f8f8f8;--ec-copyFgHover:#000000;--ec-copyFgFocus:#000000;--ec-hlBg:#dff6f2;--ec-commentBg:#effbf9;--ec-gtrFg:#999999;--ec-gtrHighlightFg:#737373;--ec-gtrBrdCol:#999999a6"><button type="button" class="copy-button" title="Copy code" data-state="idle" aria-label="Copy code"><span class="sr-only">Copy code</span><span class="copy-label" aria-hidden="true">Copy</span><span class="copy-feedback" aria-hidden="true">Copied!</span></button><pre data-language="plaintext" class="wrap" style="--lnWidth:2ch"><code><div class="ec-header ec-ext" style="background:#f5f5f5"></div><div class="ec-line"><div class="gutter"><div class="ln">1</div></div><div class="code" data-indent>(lldb) si</div></div><div class="ec-line"><div class="gutter"><div class="ln">2</div></div><div class="code" data-indent>## SNIP ##</div></div><div class="ec-line"><div class="gutter"><div class="ln">3</div></div><div class="code" data-indent>->  0x5655b55c &lt;+44>: fstps  0x14(%esp)</div></div><div class="ec-line" style="--ecIndent:4ch"><div class="gutter"><div class="ln">4</div></div><div class="code" data-indent="    ">    0x5655b560 &lt;+48>: addl   $0x18, %esp</div></div><div class="ec-line" style="--ecIndent:4ch"><div class="gutter"><div class="ln">5</div></div><div class="code" data-indent="    ">    0x5655b563 &lt;+51>: popl   %ebx</div></div><div class="ec-line" style="--ecIndent:4ch"><div class="gutter"><div class="ln">6</div></div><div class="code" data-indent="    ">    0x5655b564 &lt;+52>: retl   </div></div><div class="ec-line" style="--ecIndent:4ch"><div class="gutter"><div class="ln">7</div></div><div class="code" data-indent="    "></div></div><div class="ec-footer ec-ext" style="background:#f5f5f5"></div></code></pre></div><p>So we’re taking the top of the floating point stack and storing it in <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">0x14(%esp)</code>. Let’s step one more time (to let the <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">fstps</code> instruction run) and read the value of that memory address:</p><div class="expressive-code has-gutter" style="--ec-borderRad:0.34em;--ec-codePadBlk:0.34em;--ec-codePadInl:0.34em;--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-langBg:#effbf9;--ec-langFg:#000000;--ec-copyBg:#f7f7f7;--ec-copyFg:#000000;--ec-gutterBg:#f5f5f5;--ec-gutterGap:0.25rem;--ec-gutterPadLeft:0.5rem;--ec-codeFontSize:0.85em;--ec-codeLineHeight:1.5;--ec-copyBgHover:#f8f8f8;--ec-copyBgFocus:#f8f8f8;--ec-copyFgHover:#000000;--ec-copyFgFocus:#000000;--ec-hlBg:#dff6f2;--ec-commentBg:#effbf9;--ec-gtrFg:#999999;--ec-gtrHighlightFg:#737373;--ec-gtrBrdCol:#999999a6"><button type="button" class="copy-button" title="Copy code" data-state="idle" aria-label="Copy code"><span class="sr-only">Copy code</span><span class="copy-label" aria-hidden="true">Copy</span><span class="copy-feedback" aria-hidden="true">Copied!</span></button><pre data-language="plaintext" class="wrap" style="--lnWidth:2ch"><code><div class="ec-header ec-ext" style="background:#f5f5f5"></div><div class="ec-line"><div class="gutter"><div class="ln">1</div></div><div class="code" data-indent>(lldb) si</div></div><div class="ec-line"><div class="gutter"><div class="ln">2</div></div><div class="code" data-indent>## SNIP ##</div></div><div class="ec-line"><div class="gutter"><div class="ln">3</div></div><div class="code" data-indent>->  0x5655b560 &lt;+48>: addl   $0x18, %esp</div></div><div class="ec-line" style="--ecIndent:4ch"><div class="gutter"><div class="ln">4</div></div><div class="code" data-indent="    ">    0x5655b563 &lt;+51>: popl   %ebx</div></div><div class="ec-line" style="--ecIndent:4ch"><div class="gutter"><div class="ln">5</div></div><div class="code" data-indent="    ">    0x5655b564 &lt;+52>: retl   </div></div><div class="ec-line" style="--ecIndent:4ch"><div class="gutter"><div class="ln">6</div></div><div class="code" data-indent="    ">    0x5655b565:       nop    </div></div><div class="ec-line"><div class="gutter"><div class="ln">7</div></div><div class="code" data-indent>(lldb) register read esp</div></div><div class="ec-line" style="--ecIndent:5ch"><div class="gutter"><div class="ln">8</div></div><div class="code" data-indent="     ">     esp = 0xf77fee40</div></div><div class="ec-line"><div class="gutter"><div class="ln">9</div></div><div class="code" data-indent>(lldb) x/xw '0xf77fee40 + 0x14'</div></div><div class="ec-line"><div class="gutter"><div class="ln">10</div></div><div class="code" data-indent>0xf77fee54: 0xffe00000</div></div><div class="ec-line"><div class="gutter"><div class="ln">11</div></div><div class="code" data-indent></div></div><div class="ec-footer ec-ext" style="background:#f5f5f5"></div></code></pre></div><p>There we go, that’s a quiet NaN. That’s the first time that I’ve seen <em>the very act of returning something from a function</em> cause tests to fail where they would have succeeded if it had been done inline.</p><p>So the solution? I wrote <a href="https://github.com/Vurich/nan-preserving-float/blob/master/src/lib.rs">a wrapper around <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">u32</code>/<code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">u64</code></a> that converts to <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">f32</code>/<code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">f64</code> when doing operations. This essentially fools the CPU into thinking that these values are integers unless it’s doing binary operations on them, and so when you pass them in and out of functions it uses the <code class="expressive-code-inline" style="--ec-codeFg:#000000;--ec-codeBg:#f5f5f5;--ec-codePadInl:0.34em;--ec-codePadBlk:0.34em;--ec-borderRad:0.34em">%eax</code> register and preserves their bit patterns. Since WebAssembly requires that you quieten NaNs when doing binary operations, this doesn’t cause a problem.</p><p>If I’ve learned anything from this, it’s that no matter how close to the metal you go, you can never truly have total control over the execution of your code. I truly believe that the ability to do CPU-level debugging and to read disassembly is still important even in the age of high-level languages, because <a href="https://www.joelonsoftware.com/2002/11/11/the-law-of-leaky-abstractions/">all abstractions are leaky</a>.</p><section role="doc-endnotes"><ol style="list-style-type: none"><li id="loc-1"><p><sup role="doc-backlink"><a href="#ieee-x86">1</a></sup>Quick note: this is only true for x86, the IEEE 754 spec leaves it unspecified whether 0 or 1 represents signalling, as long as the bit mask is the same (<code>1 &lt;&lt; (sizeof(float) * 8 - 6)</code>). Why they thought it was necessary to leave this unspecified instead of just picking one and sticking with it is beyond me. Maybe on some CPUs it’s faster to unset a bit and on others it’s faster to set it (let’s be real here though, probably not).</p></li><li id="loc-2"><p><sup role="doc-backlink"><a href="#troubles">2</a></sup>Tomaka inspired the name of this blog with his file <a href="https://github.com/vulkano-rs/vulkano/blob/master/TROUBLES.md">TROUBLES.md</a>. I originally bought this domain because he mentioned that he was annoyed that TROUBLES.md kept being brought up in discussions about Rust language design. Yeah, this blog basically started as a way for me to troll my mate.</p></li><li id="loc-3"><p><sup role="doc-backlink"><a href="#lldb-debugger">3</a></sup>Yes, <a href="https://lldb.llvm.org/">that’s the official name</a>, assumably DB stands for something other than debugger, like decibel or Deutsche Bahn.</p></li></ol></section></body></html>

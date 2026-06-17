@@ -1,5 +1,6 @@
 title = "troubles.md"
 hidden-tags = ["blockchain"]
+default-tagline = "Writing words and reading dwords"
 
 [[articles]]
 path = "i-triple-equals.md"
@@ -12,6 +13,11 @@ path = "artisinal-rust.md"
 title = "Writing safe zero-cost abstractions in Rust"
 date = 2018-04-23
 draft = true
+
+[[articles]]
+path = "lightbeam.typ"
+title = "Introducing Lightbeam"
+date = 2018-09-04
 
 [[articles]]
 path = "comparison-of-inter-blockchain-communication-technologies.md"

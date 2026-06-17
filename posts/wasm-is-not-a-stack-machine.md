@@ -6,7 +6,7 @@
 > <br/><br/>
 > Also, this series is going to come off as if I dislike WebAssembly. I love WebAssembly! I wrote a [whole article about how great it is][wasm-on-the-blockchain]! In fact, I love it so much that I want it to be the best that it can be, and this series is me working through my complaints with the design in the hope that some or all of these issues can be addressed soon, while the ink is still somewhat wet on the specification.
 
-[wasm-on-the-blockchain]: {{< ref "/posts/why-wasm.md" >}}
+[wasm-on-the-blockchain]: /why-wasm.html
 
 I'm sure you're all familiar with WebAssembly by now. It's seeing use everywhere, from plugins to blockchain smart contracts to, of course, the web. If you go to the Wikipedia article for WebAssembly right now, you'll get a great overview of the technology, except for one thing: the "Design" section states:
 

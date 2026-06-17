@@ -1,12 +1,39 @@
-@import url('https://fonts.googleapis.com/css?family=Merriweather|Montserrat|Source+Code+Pro');
+@import url("https://fonts.googleapis.com/css?family=Merriweather|Montserrat|Source+Code+Pro");
 
-body, li p {
-    font-family: 'Merriweather', serif;
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background-color: #333;
+        --header-font-color: #aaa;
+        --font-color: #eee;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        --background-color: #fff;
+        --header-font-color: #777;
+        --font-color: #000;
+    }
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--font-color);
+}
+
+body,
+li p {
+    font-family: "Merriweather", serif;
     line-height: 1.8;
 }
 
-h1,h2,h3,h4,h5,h6 {
-    font-family: 'Montserrat', sans-serif;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: "Montserrat", sans-serif;
 }
 
 h3 {
@@ -14,7 +41,7 @@ h3 {
 }
 
 header {
-    font-family: 'Source Code Pro';
+    font-family: "Source Code Pro";
     text-transform: uppercase;
     font-size: 16px;
     letter-spacing: 0.05em;
@@ -23,12 +50,14 @@ header {
     justify-content: space-between;
 }
 
-header .title {
+header .blog-name {
     line-height: 1.8;
 }
 
-header, header a {
-    color: #777;
+header,
+header a {
+    color: var(--header-font-color);
+    text-decoration: none;
 }
 
 @media all {
@@ -40,7 +69,7 @@ header, header a {
         margin-right: 7.5rem;
     }
 }
-@media all and (max-width:840px){
+@media all and (max-width: 840px) {
     html {
         font-size: 17px;
     }
@@ -52,18 +81,18 @@ header, header a {
         font-size: 12px;
     }
 }
-@media all and (max-width:760px){
+@media all and (max-width: 760px) {
     body > * {
         margin-left: 2.5rem;
         margin-right: 2.5rem;
     }
 }
-@media all and (max-width:580px){
+@media all and (max-width: 580px) {
     html {
         font-size: 16px;
     }
 
-    header .dash {
+    header .separator {
         visibility: collapse;
     }
 
@@ -83,41 +112,41 @@ html {
 }
 
 li:target {
-    background-color: #FFFFE0;
+    background-color: #ffffe0;
 }
 
 body {
     padding: 0rem 0em 0rem 0em;
-    margin-left:auto;
-    margin-right:auto;
-    width:100%;
-    max-width:1200px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    max-width: 1200px;
     min-height: 100%;
     text-rendering: optimizeLegibility;
-    -moz-font-feature-settings: 'kern=1';
-    -moz-font-feature-settings: 'kern' 1;
-    -webkit-font-feature-settings: 'kern' 1;
-    -o-font-feature-settings: 'kern' 1;
-    -ms-font-feature-settings: 'kern' 1;
-    font-feature-settings: 'kern' 1;
+    -moz-font-feature-settings: "kern=1";
+    -moz-font-feature-settings: "kern" 1;
+    -webkit-font-feature-settings: "kern" 1;
+    -o-font-feature-settings: "kern" 1;
+    -ms-font-feature-settings: "kern" 1;
+    font-feature-settings: "kern" 1;
 
     text-rendering: optimizeLegibility;
-    -moz-font-feature-settings: 'liga=1';
-    -moz-font-feature-settings: 'liga' 1;
-    -webkit-font-feature-settings: 'liga' 1;
-    -o-font-feature-settings: 'liga' 1;
-    -ms-font-feature-settings: 'liga' 1;
-    font-feature-settings: 'liga' 1;
+    -moz-font-feature-settings: "liga=1";
+    -moz-font-feature-settings: "liga" 1;
+    -webkit-font-feature-settings: "liga" 1;
+    -o-font-feature-settings: "liga" 1;
+    -ms-font-feature-settings: "liga" 1;
+    font-feature-settings: "liga" 1;
 }
 
-div.content { 
-    display: block; 
+div.content {
+    display: block;
     padding: 1rem 0 1rem 0;
 }
 
 .spon {
     width: 100%;
-    font-family: 'Montserrat', sans-serif;
+    font-family: "Montserrat", sans-serif;
     font-size: 14px;
     background-color: rgb(243, 243, 165);
     border-left: 3px solid black;
@@ -130,7 +159,7 @@ div.content {
 .attribution {
     display: block;
     font-size: 18px;
-    font-family: 'Montserrat', sans-serif;
+    font-family: "Montserrat", sans-serif;
     width: 100%;
     line-height: 1.8;
     margin-top: 5px;
@@ -139,27 +168,32 @@ div.content {
 }
 
 .attribution:before {
-    content: '– ';
+    content: "– ";
 }
 
 header {
     padding: 0.5rem 0 0.5rem 0;
-    border-bottom: 0.10em solid black;
+    border-bottom: 0.1em solid black;
 }
 
-.title, .subtitle {
+.blog-name {
+    font-weight: bold;
+}
+
+.blog-name,
+.tagline {
     margin-bottom: 0px;
     display: inline-block;
     text-decoration: none;
 }
 
 footer {
-    display:block;
+    display: block;
     padding: 0.5rem 0 5.5rem 0;
 }
 
-@media all and (max-width:520px) {
-    div.content { 
+@media all and (max-width: 520px) {
+    div.content {
         padding: 0;
     }
 }
@@ -185,7 +219,7 @@ h2 {
 
 aside {
     font-size: 0.84rem;
-    line-height: 1.40;
+    line-height: 1.4;
     color: #667;
 }
 
@@ -193,12 +227,16 @@ aside em {
     font-size: 0.7rem;
 }
 
-
 p {
     margin-bottom: 1em;
 }
 
-ul,ol {
+ul p {
+    margin-bottom: 0;
+}
+
+ul,
+ol {
     margin-bottom: 1em;
     padding-left: 1em;
 }
@@ -208,8 +246,7 @@ li {
     margin-left: 0.75em;
 }
 
-
-table { 
+table {
     margin-bottom: 1.5em;
     border-collapse: collapse;
     width: 95%;
@@ -249,51 +286,58 @@ a {
     text-decoration: underline;
 }
 
-
-div.nav a:active div { 
+div.nav a:active div {
     background: #cacaca;
 }
 
-a:active { 
-    color: #777; 
+a:active {
+    color: #777;
 }
 
 a:hover {
-    background: #F3F4F4;
-
+    background: #f3f4f4;
 }
 
 pre {
     margin-left: 0.7em;
     padding-left: 1.4em;
     padding-right: 15px;
-    padding-top: 15px;
-    padding-bottom: 15px;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
     margin-bottom: 20px;
+    background-color: #f7f7f7;
     overflow: auto;
     line-height: 1.5;
     font-size: 14px;
     border-left: 3.5px solid #bbb;
 }
 
-code {
-    font-family: 'Source Code Pro', monospace;
+code .ln {
+    margin-right: 0.5em;
+}
+
+/*code {
+    font-family: "Source Code Pro", monospace;
     display: inline-block;
     max-width: 100%;
     font-variant-ligatures: none;
     text-rendering: auto;
-    -moz-font-feature-settings: 'liga=0';
-    -moz-font-feature-settings: 'liga' 0;
-    -webkit-font-feature-settings: 'liga' 0;
-    -o-font-feature-settings: 'liga' 0;
-    -ms-font-feature-settings: 'liga' 0;
-    font-feature-settings: 'liga' 0;
-}
+    -moz-font-feature-settings: "liga=0";
+    -moz-font-feature-settings: "liga" 0;
+    -webkit-font-feature-settings: "liga" 0;
+    -o-font-feature-settings: "liga" 0;
+    -ms-font-feature-settings: "liga" 0;
+    font-feature-settings: "liga" 0;
+}*/
 
-h1>code, h2>code, h3>code, h4>code, p>code {
+/*h1 > code,
+h2 > code,
+h3 > code,
+h4 > code,
+p > code {
     text-transform: none;
     color: #434f54;
-}
+}*/
 
 figcaption {
     font-weight: 400;
@@ -310,10 +354,8 @@ blockquote {
     border-left: 3.5px solid #0594cb;
     margin: 0.7em 10px;
     padding: 0.7em 20px;
-
 }
 
 blockquote p {
     display: inline;
 }
-

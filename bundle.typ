@@ -1,3 +1,7 @@
+// This is the entry point
+//
+// To compile the static site, run `typst compile --features html,bundle --format bundle bundle.typ`
+
 #import "config.typ": articles, blog_title
 
 #for article in articles [

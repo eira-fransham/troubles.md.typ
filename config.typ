@@ -1,6 +1,5 @@
 #import "/template/mod.typ": post
 #import "@preview/cmarker:0.1.8": render
-#import "@preview/zebraw:0.6.3": *
 
 #let config = toml("config.toml")
 
@@ -14,8 +13,16 @@
   }
 
   let article_path = "posts/" + article.path
-  let basename = article.path.replace(regex("\.(ty|md)$"), "")
+  let basename = article.path.replace(regex("\.(typ|md)$"), "")
   let article_label = label(basename)
+  let tagline = article.at("tagline", default: config.at("default-tagline"))
+
+  let show_post = post.with(
+    title: article.title,
+    date: article.date,
+    blog-title: blog_title,
+    tagline: tagline,
+  )
 
   assert(article.at("title", default: none) != none, message: repr(article))
 
@@ -28,13 +35,7 @@
       ),
     )
     let article_content = [
-      #show: zebraw-init
-      #show raw: zebraw
-
-      #show: post.with(
-        title: article.title,
-        date: article.date,
-      )
+      #show: show_post
 
       #article_rendered
     ]
@@ -47,10 +48,7 @@
     ))
   } else if (article_path.ends-with("typ")) {
     let article_content = [
-      #show: post.with(
-        title: article.title,
-        date: article.date,
-      )
+      #show: show_post
 
       #include article_path
     ]

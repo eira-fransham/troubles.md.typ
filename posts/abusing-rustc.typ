@@ -205,7 +205,7 @@ pub fn cowarr_as_ref<'a>(a: &'a CowArr<'_, u8>) -> &'a [u8] {
 
 Clicking “Show Assembly” (in release mode, of course) shows us what this compiles to. Don’t worry, I know assembly can be scary so I’ve written comments:
 
-```gas
+```asm
 ;; For the standard library `Cow`...
 cow_as_ref:
     ;; We only need to load the `ptr` once (good!)
@@ -331,7 +331,7 @@ pub fn cowarr3fields_noop(a: CowArr3Fields<'_, u8>) -> CowArr3Fields<'_, u8> {
 
 The assembly output of this looks like so:
 
-```gas
+```asm
 cow_as_ref:
     mov   rax, [rdi + 8]
     cmp   [rdi], 1
@@ -621,7 +621,7 @@ pub fn static_new_cow(cow: Box<Test>) -> Option<CursedCow<'static, Test>> {
 
 The code made by these functions is pretty amazingly minimal, and almost entirely avoids using the stack - keeping most values in registers. I won’t explain this assembly fully, but it’s here for completeness:
 
-```gas
+```asm
 dyn_as_ref:
     mov    rdx, [rdi + 8]
     movabs rax, 9223372036854775807

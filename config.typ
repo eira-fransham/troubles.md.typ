@@ -6,6 +6,10 @@
 #let blog-title = config.title
 #let default-tagline = config.at("default-tagline", default: "")
 
+#let syntax-theme = (
+  dark: config.at("syntax", default: (:)).at("dark-theme", default: none),
+  light: config.at("syntax", default: (:)).at("light-theme", default: none),
+)
 #let unsorted-articles = ()
 
 #for article in config.at("articles") {
@@ -21,6 +25,7 @@
   let show-post = post.with(
     post-title: article.at("title", default: none),
     post-date: article.at("date", default: none),
+    syntax-theme: syntax-theme,
     blog-title: blog-title,
     tagline: tagline,
   )

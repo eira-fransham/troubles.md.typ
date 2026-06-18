@@ -17,7 +17,7 @@
 
 #let footnotes = (
   conditional-branch: [
-    It would technically be possible to collapse br_table and br_if into a single construct but there are optimisations that you can do for the latter that aren’t possible with the former, so we’d just end up converting it back later on. I might actually do this later since it means that we can focus optimisation on just a single place (so if we get a two-target br_table as input we generate code as good as for a br_if), but for now they’re separate. We could even collapse br into br_table with one element, giving us only one possibility to work with.
+    It would technically be possible to collapse `br_table` and `br_if` into a single construct but there are optimisations that you can do for the latter that aren’t possible with the former, so we’d just end up converting it back later on. I might actually do this later since it means that we can focus optimisation on just a single place (so if we get a two-target `br_table` as input we generate code as good as for a `br_if`), but for now they’re separate. We could even collapse `br` into `br_table` with one element, giving us only one possibility to work with.
   ],
   multi-caller: [
     In a “proper” optimising compiler that doesn’t need to support streaming compilation, you can do optimisations on blocks with more than one caller but a streaming compiler can only do these optimisations for blocks with precisely one caller. I won’t go into precisely why this is now, I’ll leave that as an exercise for the reader, but I might revisit it in a future article.

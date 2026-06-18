@@ -24,7 +24,7 @@ So let's look at the Ethereum VM, by far the most-used blockchain VM currently. 
 
 To help with this, extra inbuilt functions have been added to the virtual machine over the years that implement efficient versions of commonly-needed functions. These are all cryptography-related functions for now, just because those are the most egregious of performance killers in the EVM. This is partly because the EVM's word size is 256 bits, large enough that it must be implemented in software. Although at Parity we've put a lot of work into [optimising our 256-bit integer implementation][u256], it's still the case that this software implementation is orders of magnitude slower than (for example) hardware 32-bit arithmetic.
 
-[u256]: {{< ref "/posts/the-power-of-compilers.md" >}}
+[u256]: /the-power-of-compilers
 
 Another difficult problem with efficiently executing EVM code is that it must be interpreted. A common way to massively increase the speed of virtual machines is to "just-in-time compile" them. This means compiling them to native code as you run them. This isn't so simple on the blockchain. The overarching problem with blockchain VMs vs regular VMs is that blockchain VMs must consider the code they are running to be adversarial at all times, because since it's a financial system, any problems can probably be used for financial gain by someone. With JIT compilation, since you're compiling to native code essentially all safety rails are removed and you must be _extremely_ careful to avoid major bugs, from consensus issues due to slightly different behaviour on different platforms up to and including [arbitrary code execution][ace].
 

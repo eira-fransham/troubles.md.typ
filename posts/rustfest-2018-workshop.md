@@ -25,7 +25,7 @@ You should get these from your package manager where possible, but if you don't 
 
 You'll probably have seen `perf`+`flamegraph` recommended before by [certain very smart and handsome fellows][warp-speed] but I've actually had more luck with callgrind (included in Valgrind). You can try to use `perf` but although it can give very good outputs for some programs it's quite inconsistent. Also, using callgrind means you can use KCachegrind, which is the best thing since sliced bread. In the linked article I said that Valgrind was scary, but that was one of my patented Uninformed Opinions&trade;. It's actually very intuitive and, honestly, easier to use than the "simple" solution of using `perf`. I'll go into more detail about how to use callgrind later on.
 
-[warp-speed]: {{< ref "/posts/rust-optimization.md" >}}
+[warp-speed]: /rust-optimization
 
 ## Finding our slow sections
 

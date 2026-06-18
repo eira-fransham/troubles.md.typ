@@ -1,6 +1,11 @@
 title = "troubles.md"
+url = "http://troubles.md/"
 hidden-tags = ["blockchain"]
 default-tagline = "Writing words and reading dwords"
+
+[syntax]
+dark-theme = "cyberdream"
+light-theme = "cyberdream-light"
 
 [[articles]]
 path = "i-triple-equals.md"
@@ -69,7 +74,8 @@ draft = true
 path = "rustfest-2018-workshop.md"
 title = "Fastware Workshop"
 date = 2018-05-22
-draft = false
+images = ["rustfest-2018-workshop/kcachegrind.png", "rustfest-2018-workshop/kcachegrind-callees.png"]
+draft = true
 
 [[articles]]
 path = "sexpress.md"

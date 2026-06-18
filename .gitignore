@@ -1,2 +1,2 @@
-bundle/*.html
+/bundle/*
 .DS_Store

@@ -6,9 +6,9 @@
 > <br/><br/>
 > Also, this series is going to come off as if I dislike WebAssembly. I love WebAssembly! I wrote a [whole article about how great it is][wasm-on-the-blockchain]! In fact, I love it so much that I want it to be the best that it can be, and this series is me working through my complaints with the design in the hope that some or all of these issues can be addressed soon, while the ink is still somewhat wet on the specification.
 
-[wasm-on-the-blockchain]: {{< ref "/posts/why-wasm.md" >}}
-[part-1]: {{< ref "/posts/wasm-is-not-a-stack-machine.md" >}}
-[part-2]: {{< ref "/posts/why-do-we-need-the-relooper-algorithm-again.md" >}}
+[wasm-on-the-blockchain]: /why-wasm
+[part-1]: /wasm-is-not-a-stack-machine
+[part-2]: /why-do-we-need-the-relooper-algorithm-again
 
 If you read my [first article in this series][part-1], you'll know that WebAssembly has both locals and the stack. I made the argument that locals are not just unnecessary, but are detrimental to the performance of WebAssembly in general, and that everything could be done with the stack alone. However, if you're familiar with LLVM IR or other SSA IRs you might be familiar with an operator known as `alloca`, which circumvents SSA form to create an actual value on the stack. Why does LLVM need that escape hatch while I argue that WebAssembly does not?
 

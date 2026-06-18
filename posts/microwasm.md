@@ -1,5 +1,3 @@
-# WebAssembly Troubles part 4: Microwasm
-
 > ### Preamble
 >
 > This is the final part of a 4-part miniseries on issues with WebAssembly and proposals to fix them. [Part 1 here](http://troubles.md/wasm-is-not-a-stack-machine/), [part 2 here](http://troubles.md/why-do-we-need-the-relooper-algorithm-again/), [part 3 here](http://troubles.md/the-stack-is-not-the-stack/). This article assumes some familiarity with virtual machines, compilers and WebAssembly, but I’ll try to link to relevant information where necessary so even if you’re not you can follow along. Also, this series is going to come off as if I dislike WebAssembly. I love WebAssembly! I wrote a [whole article about how great it is](http://troubles.md/why-wasm/)! In fact, I love it so much that I want it to be the best that it can be, and this series is me working through my complaints with the design in the hope that some or all of these issues can be addressed soon, while the ink is still somewhat wet on the specification.
@@ -8,7 +6,7 @@ Wasm is mostly a great spec, but it has some serious problems. I’ve detailed s
 
 Well, turns out we don’t need to - we can get many of the desired benefits without dropping support for WebAssembly as it exists now.
 
-## Introducing Microwasm
+# Introducing Microwasm
 
 Microwasm (working title) is Wasm-compatible format that can be efficiently consumed by runtimes and efficiently produced by compilers like LLVM. It’s currently implemented in the [Microwasm branch of Lightbeam](https://github.com/CraneStation/lightbeam/pull/18). The main goals are as follows:
 

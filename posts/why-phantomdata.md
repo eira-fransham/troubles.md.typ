@@ -102,13 +102,13 @@ You can see why this is the case - it's OK to pass a longer reference where a sh
 struct PointlessWrapper<T>(T);
 ```
 
-Is `PointlessWrapper<Foo>` a subtype of `PointlessWrapper<Bar>` well, it is if `Foo` is a subtype of `Bar`. You can pass a `PointlessWrapper<&'static str>` where you expected a `PointlessWrapper<&'a str>`. What about this, though:
+Is `PointlessWrapper<Foo>` a subtype of `PointlessWrapper<Bar>`? Well, it is if `Foo` is a subtype of `Bar`. You can pass a `PointlessWrapper<&'static str>` where you expected a `PointlessWrapper<&'a str>`. What about this, though:
 
 ```rust
 struct FunkyWrapper<T>(fn(T) -> ());
 ```
 
-Is `FunkyWrapper<Foo>` a subtype of `FunkyWrapper<Bar>`? It's a subtype if `Foo` is a subtype of `Bar`, right? Well no. Actually it goes the _other direction_. `FunkyWrapper<Foo>` is a subtype of `FunkyWrapper<Bar>` _if `Bar` is a subtype of `Foo`_. This is because if you have a `FunkyWrapper<&'static str>`, that means you are wrapping a function that takes a `&'static str`. This function could, again, store the reference in a global mutex or do all kinds of other freaky stuff. You can't pass a `FunkyWrapper<&'static str>` where a `FunkyWrapper<&'a str>` is expected, because if you get given a `FunkyWrapper<&'static str>` and pass an `&'a str` to it then the wrapped function could put that reference with a short lifetime into a global mutex - but the reference would be invalidated after the lifetime `'a` ends. You might be starting to see why we need a marker type now, but I'll give you one more example:
+Is `FunkyWrapper<Foo>` a subtype of `FunkyWrapper<Bar>`? It's a subtype if `Foo` is a subtype of `Bar`, right? Well no. Actually, it goes the other direction. `FunkyWrapper<Foo>` is a subtype of `FunkyWrapper<Bar>` iff `Bar` is a subtype of `Foo`. This is because, if you have a `FunkyWrapper<&'static str>`, that means you are wrapping a function that takes a `&'static str`. This function could, again, store the reference in a global mutex or do all kinds of other freaky stuff. You can't pass a `FunkyWrapper<&'static str>` where a `FunkyWrapper<&'a str>` is expected, because if you get given a `FunkyWrapper<&'static str>` and pass an `&'a str` to it then the wrapped function could put that reference with a short lifetime into a global mutex - but the reference would be invalidated after the lifetime `'a` ends. You might be starting to see why we need a marker type now, but I'll give you one more example:
 
 ```rust
 struct MagicWrapper<T>(T, fn(T) -> ());

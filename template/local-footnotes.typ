@@ -1,11 +1,29 @@
+#let _local-footnotes-state = state("local-footnotes", (
+  numbering-format: "a",
+  notes: (),
+))
 /// (internal) unique ID per group of local footnotes
 #let _local-footnotes-counter = counter("local-footnotes")
 
+/// Changes the setup for local footnotes
+#let local-footnotes-setup(numbering-format: "a") = {
+  context {
+    if _local-footnotes-state.get().notes.len() > 0 {
+      panic("cannot change local-footnotes-setup when there are not yet shown footnotes")
+    }
+  }
+
+  _local-footnotes-state.update(s => {
+    s.numbering-format = numbering-format
+    s
+  })
+}
+
 /// (internal) Creates labels for linking from ref to note and vice versa
-#let _local-footnotes-labels(article, footnotes-group-id, index) = {
+#let _local-footnotes-labels(footnotes-group-id, index) = {
   (
-    ref: label("_local-footnotes-ref-" + str(article) + "-" + str(footnotes-group-id) + "-" + str(index)),
-    note: label("_local-footnotes-note-" + str(article) + "-" + str(footnotes-group-id) + "-" + str(index)),
+    ref: label("ft-ref-" + str(footnotes-group-id) + "-" + str(index)),
+    note: label("ft-note-" + str(footnotes-group-id) + "-" + str(index)),
   )
 }
 #let _local-footnotes-format(notes) = {
@@ -19,53 +37,50 @@
 
 /// Shows the local footnotes which have been added so far, and resets the list of footnotes.
 /// The `format` parameter can be used to overwrite the default formatting of the footnotes.
-#let local-footnotes-show(location, format: _local-footnotes-format, state: none) = context {
-  let local-footnotes-state = state.at(location)
+#let local-footnotes-show(format: _local-footnotes-format) = context {
+  let local-footnotes-state = _local-footnotes-state.get()
   let footnotes = local-footnotes-state.notes
   if footnotes.len() == 0 {
     return
   }
   local-footnotes-state.notes = ()
-  state.update(local-footnotes-state)
+  _local-footnotes-state.update(local-footnotes-state)
   _local-footnotes-counter.step()
-  let footnotes-group-id = _local-footnotes-counter.at(location).at(0)
+  let footnotes-group-id = _local-footnotes-counter.get().at(0)
   let numbering-format = local-footnotes-state.numbering-format
-  let article = local-footnotes-state.article
 
-  panic(footnotes)
+  let footnotes-entries = ()
 
-  format({
-    let footnotes-entries = ()
+  html.elem("section", attrs: (class: "footnotes", role: "doc-endnotes"))[
+    #html.elem("hr")
 
-    for (i, note) in footnotes.enumerate() {
-      let number = i + 1
-      let formatted-number = numbering(numbering-format, number)
-      let labels = _local-footnotes-labels(article, footnotes-group-id, number)
+    #html.elem("ol", [
+      #for (i, note) in footnotes.enumerate() [
+        #let number = i + 1
+        #let formatted-number = numbering(numbering-format, number)
+        #let labels = _local-footnotes-labels(footnotes-group-id, number)
 
-      // First add the footnote number
-      footnotes-entries.push([
-        // Set link color to regular text color, but only for this link, not for links in note text
-        #show link: set text(fill: text.fill)
-        #heading("")#labels.note
-        #link(labels.ref, [#super(formatted-number)])
-      ])
-      // Then add the corresponding footnote text
-      footnotes-entries.push(align(left, note))
-    }
-
-    grid(columns: (auto, 1fr), column-gutter: 0.2em, row-gutter: 0.7em, ..footnotes-entries)
-  })
+        // Then add the corresponding footnote text
+        #html.elem("li")[
+          #note
+          #html.elem("div", attrs: (class: "ft-return-link"))[
+            #link(labels.ref, [↩︎])
+          ]
+        ]#labels.note
+      ]
+    ])
+  ]
 }
 
 /// Creates a local footnote with the given text.
 /// Can provide more than one note, to separate the footnote references with a comma.
-#let local-footnote(note, ..additional-notes, state: none) = {
+#let local-footnote(note, ..additional-notes) = {
   // Similar to regular `footnote` support placing a label on a local footnote
   // and then referring to that again at a later point
   let is-label = type(note) == label
 
   if not is-label {
-    state.update(s => {
+    _local-footnotes-state.update(s => {
       s.notes.push(note)
       s
     })
@@ -75,8 +90,8 @@
     let local-footnotes-state = if is-label {
       // TODO: This implementation might be rather error-prone because it also 'works'
       // for labels not attached to local footnotes (?)
-      state.at(note)
-    } else { state.get() }
+      _local-footnotes-state.at(note)
+    } else { _local-footnotes-state.get() }
     let number = local-footnotes-state.notes.len()
     if is-label {
       // Apparently at the position of the label the state has not been updated yet (?),
@@ -87,18 +102,16 @@
       number += 1
     }
     let formatted-number = numbering(local-footnotes-state.numbering-format, number)
-    let article = local-footnotes-state.article
     let footnotes-group-id = _local-footnotes-counter.get().at(0)
-    let labels = _local-footnotes-labels(article, footnotes-group-id, number)
+    let labels = _local-footnotes-labels(footnotes-group-id, number)
 
     let color = text.fill
     show link: set text(fill: color)
     // Only add label if this is not itself a label referring to an existing footnote
     let ref-label = if not is-label { labels.ref }
-
+    // Use `weak: true` to collapse space, similar to built-in `footnote`
     [
-      #heading("") #ref-label
-      #link(labels.note, super(formatted-number))
+      #link(labels.note, super(formatted-number))#ref-label
     ]
   }
 

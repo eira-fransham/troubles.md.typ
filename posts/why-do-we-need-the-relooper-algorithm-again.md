@@ -6,8 +6,8 @@
 > <br/><br/>
 > Also, this series is going to come off as if I dislike WebAssembly. I love WebAssembly! I wrote a [whole article about how great it is][wasm-on-the-blockchain]! In fact, I love it so much that I want it to be the best that it can be, and this series is me working through my complaints with the design in the hope that some or all of these issues can be addressed soon, while the ink is still somewhat wet on the specification.
 
-[wasm-on-the-blockchain]: /why-wasm.html
-[part-1]: /wasm-is-not-a-stack-machine.html
+[wasm-on-the-blockchain]: /why-wasm
+[part-1]: /wasm-is-not-a-stack-machine
 
 So if there's one thing people know about WebAssembly control flow, it's that it doesn't allow `goto`. `goto`, we're told, is [considered harmful][goto-considered-harmful], and so WebAssembly only implements simple control flow constructs:
 

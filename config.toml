@@ -16,8 +16,13 @@ draft = true
 
 [[articles]]
 path = "lightbeam.typ"
-title = "Introducing Lightbeam"
-date = 2018-09-04
+title = "Introducing Lightbeam: An Optimising Streaming WebAssembly Compiler"
+date = 2019-05-04
+
+[[articles]]
+path = "abusing-rustc.typ"
+title = "Inviting God's Wrath with Cursed Rust"
+date = 2020-03-16
 
 [[articles]]
 path = "comparison-of-inter-blockchain-communication-technologies.md"
@@ -82,22 +87,27 @@ draft = false
 path = "wasm-is-not-a-stack-machine.md"
 title = "WebAssembly Troubles part 1: WebAssembly Is Not a Stack Machine"
 tags = ["rust", "wasm", "best-of"]
-date = 2019-01-30
+date = 2019-01-28
 draft = false
 
 [[articles]]
 path = "why-do-we-need-the-relooper-algorithm-again.md"
 title = "WebAssembly Troubles part 2: Why Do We Need the Relooper Algorithm, Again?"
 tags = ["rust", "wasm", "best-of"]
-date = 2019-01-30
+date = 2019-01-29
 draft = false
 
 [[articles]]
 path = "the-stack-is-not-the-stack.md"
 title = "WebAssembly Troubles part 3: What About Alloca?"
 tags = ["rust", "wasm", "best-of"]
-date = 2019-01-31
+date = 2019-01-30
 draft = false
+
+[[articles]]
+path = "microwasm.md"
+title = "WebAssembly Troubles part 4: Microwasm"
+date = 2019-01-31
 
 [[articles]]
 path = "what-is-substrate.md"

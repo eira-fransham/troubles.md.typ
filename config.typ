@@ -3,9 +3,10 @@
 
 #let config = toml("config.toml")
 
-#let blog_title = config.title
+#let blog-title = config.title
+#let default-tagline = config.at("default-tagline", default: "")
 
-#let articles = ()
+#let unsorted-articles = ()
 
 #for article in config.at("articles") {
   if (article.at("draft", default: false)) {
@@ -15,18 +16,16 @@
   let article_path = "posts/" + article.path
   let basename = article.path.replace(regex("\.(typ|md)$"), "")
   let article_label = label(basename)
-  let tagline = article.at("tagline", default: config.at("default-tagline"))
+  let tagline = article.at("tagline", default: default-tagline)
 
-  let show_post = post.with(
-    title: article.title,
-    date: article.date,
-    blog-title: blog_title,
+  let show-post = post.with(
+    post-title: article.at("title", default: none),
+    post-date: article.at("date", default: none),
+    blog-title: blog-title,
     tagline: tagline,
   )
 
-  assert(article.at("title", default: none) != none, message: repr(article))
-
-  if (article_path.ends-with("md")) {
+  let article_content = if (article_path.ends-with("md")) {
     let raw_text = read(article_path, encoding: "utf8")
     let article_rendered = render(
       raw_text,
@@ -34,32 +33,29 @@
         image: (source, alt: none, format: auto) => image("/static" + source, alt: alt, format: format),
       ),
     )
-    let article_content = [
-      #show: show_post
+
+    [
+      #show: show-post
 
       #article_rendered
     ]
-
-    articles.push((
-      basename: basename,
-      title: article.title,
-      label: article_label,
-      content: article_content,
-    ))
   } else if (article_path.ends-with("typ")) {
-    let article_content = [
-      #show: show_post
+    [
+      #show: show-post
 
       #include article_path
     ]
-
-    articles.push((
-      basename: basename,
-      title: article.title,
-      label: article_label,
-      content: article_content,
-    ))
   } else {
     assert(false, message: "Only markdown and Typst are supported")
   }
+
+  unsorted-articles.push((
+    basename: basename,
+    title: article.title,
+    date: article.date,
+    label: article_label,
+    content: article_content,
+  ))
 }
+
+#let articles = unsorted-articles.sorted(key: article => article.date, by: (a, b) => a >= b)

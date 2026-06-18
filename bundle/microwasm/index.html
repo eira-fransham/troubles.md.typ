@@ -1,0 +1,501 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>@import url("https://fonts.googleapis.com/css?family=Merriweather|Montserrat|Source+Code+Pro");
+
+:root {
+    --default-inset: 11pt;
+    --expanded-inset: 16pt;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background-color: #333;
+        --header-font-color: #aaa;
+        --font-color: #eee;
+        --pre-font-color: #ccc;
+        --date-color: #999;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        --background-color: #fff;
+        --header-font-color: #777;
+        --font-color: #000;
+        --pre-font-color: #333;
+        --date-color: #667;
+    }
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--font-color);
+}
+
+body,
+li p {
+    font-family: "Merriweather", serif;
+    line-height: 1.8;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: "Montserrat", sans-serif;
+}
+
+h3 {
+    font-size: 18px;
+}
+
+.post-link {
+    margin-bottom: 1em;
+}
+
+.post-link a {
+    color: var(--font-color);
+}
+
+header {
+    font-family: "Source Code Pro";
+    text-transform: uppercase;
+    font-size: 16px;
+    letter-spacing: 0.05em;
+    line-height: 1.2;
+    display: flex;
+    justify-content: space-between;
+}
+
+header .blog-name {
+    line-height: 1.8;
+}
+
+header,
+header a {
+    color: var(--header-font-color);
+    text-decoration: none;
+}
+
+/* reset */
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    height: 100%;
+}
+
+li:target {
+    background-color: #ffffe0;
+}
+
+body {
+    padding: 0rem 0em 0rem 0em;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    max-width: 1200px;
+    min-height: 100%;
+    text-rendering: optimizeLegibility;
+    -moz-font-feature-settings: "kern=1";
+    -moz-font-feature-settings: "kern" 1;
+    -webkit-font-feature-settings: "kern" 1;
+    -o-font-feature-settings: "kern" 1;
+    -ms-font-feature-settings: "kern" 1;
+    font-feature-settings: "kern" 1;
+
+    text-rendering: optimizeLegibility;
+    -moz-font-feature-settings: "liga=1";
+    -moz-font-feature-settings: "liga" 1;
+    -webkit-font-feature-settings: "liga" 1;
+    -o-font-feature-settings: "liga" 1;
+    -ms-font-feature-settings: "liga" 1;
+    font-feature-settings: "liga" 1;
+}
+
+.spon {
+    width: 100%;
+    font-family: "Montserrat", sans-serif;
+    font-size: 14px;
+    background-color: rgb(243, 243, 165);
+    border-left: 3px solid black;
+    margin-bottom: 15px;
+    padding-bottom: 5px;
+    padding-left: 12px;
+    padding-top: 5px;
+}
+
+.attribution {
+    display: block;
+    font-size: 18px;
+    font-family: "Montserrat", sans-serif;
+    width: 100%;
+    line-height: 1.8;
+    margin-top: 5px;
+    margin-left: 5px;
+    font-weight: bold;
+}
+
+.attribution:before {
+    content: "– ";
+}
+
+header {
+    padding: 0.5rem 0 0.5rem 0;
+    border-bottom: 0.1em solid black;
+    margin-bottom: 1.5rem;
+}
+
+.blog-name {
+    font-weight: bold;
+}
+
+.blog-name,
+.tagline {
+    margin-bottom: 0px;
+    display: inline-block;
+    text-decoration: none;
+}
+
+footer {
+    display: block;
+    padding: 0.5rem 0 5.5rem 0;
+}
+
+@media all and (max-width: 520px) {
+    div.post {
+        padding: 0;
+    }
+}
+
+.title {
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.title aside {
+    width: 100%;
+    text-align: right;
+}
+
+h1 {
+    display: block;
+    font-size: 250%;
+    line-height: 1.1;
+    padding-top: 0.02em;
+    -moz-hyphens: none;
+    -webkit-hyphens: none;
+    -o-hyphens: none;
+    -ms-hyphens: none;
+    hyphens: none;
+}
+
+h2 {
+    margin-top: 1.7rem;
+    font-size: 170%;
+}
+
+.post-link:first-of-type {
+    margin-top: 1rem;
+}
+
+.post-link {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.post-link a {
+    line-height: 1.6;
+    padding-right: 1.5rem;
+}
+
+aside {
+    font-size: 0.84rem;
+    align-self: center;
+    line-height: 1.4;
+    color: var(--date-color);
+    text-align: right;
+    margin-right: 1em;
+    text-wrap-mode: nowrap;
+}
+
+aside em {
+    font-size: 0.7rem;
+}
+
+p {
+    margin-bottom: 1em;
+}
+
+ul p {
+    margin-bottom: 0;
+}
+
+ul,
+ol {
+    margin-bottom: 1em;
+    padding-left: 1em;
+}
+
+li {
+    line-height: 1.75em;
+    margin-left: 0.75em;
+}
+
+table {
+    margin-bottom: 1.5em;
+    border-collapse: collapse;
+    width: 95%;
+}
+
+table tr + tr {
+    border-top: 1px solid #ccc;
+}
+table td + td {
+    border-left: 1px solid #ccc;
+}
+
+table td {
+    padding: 0.4em;
+    text-align: center;
+    -moz-hyphens: none;
+    -webkit-hyphens: none;
+    -o-hyphens: none;
+    -ms-hyphens: none;
+    hyphens: none;
+}
+
+table th {
+    font-weight: normal;
+    text-transform: uppercase;
+    font-size: 95%;
+    padding: 0.3rem 0.5rem 0.3rem 0.5rem;
+    line-height: 1.05;
+}
+
+img {
+    width: 100%;
+}
+
+a {
+    color: #0366d6;
+    text-decoration: underline;
+}
+
+div.nav a:active div {
+    background: #cacaca;
+}
+
+a:active {
+    color: #777;
+}
+
+a:hover {
+    background: #f3f4f4;
+}
+
+pre {
+    margin-left: var(--expanded-inset);
+    margin-right: var(--default-inset);
+    max-width: 70ch;
+    padding-left: 1.4em;
+    padding-top: 1em;
+    padding-bottom: 1em;
+    margin-bottom: 20px;
+    background-color: #f7f7f7;
+    overflow: auto;
+    line-height: 1.5;
+    font-size: 14px;
+    border-left: 3.5px solid #bbb;
+}
+
+code {
+    font-family: "Source Code Pro", monospace;
+    display: inline-block;
+    max-width: 100%;
+    font-variant-ligatures: none;
+    text-rendering: auto;
+    -moz-font-feature-settings: "liga=0";
+    -moz-font-feature-settings: "liga" 0;
+    -webkit-font-feature-settings: "liga" 0;
+    -o-font-feature-settings: "liga" 0;
+    -ms-font-feature-settings: "liga" 0;
+    font-feature-settings: "liga" 0;
+}
+
+h1 > code,
+h2 > code,
+h3 > code,
+h4 > code,
+p > code {
+    text-transform: none;
+    color: #434f54;
+}
+
+figcaption {
+    font-weight: 400;
+    font-style: italic;
+    font-size: 0.7em/1.52;
+    line-height: 1.3;
+    color: #666665;
+    outline: 0;
+    z-index: 300;
+    text-align: center;
+}
+
+blockquote {
+    border-left: 3.5px solid #0594cb;
+    margin: 10px var(--expanded-inset);
+    padding: var(--default-inset) 20px;
+}
+
+blockquote p {
+    display: inline;
+}
+
+@media all {
+    aside.date-full {
+        display: inline-block;
+    }
+
+    aside.date-short {
+        display: none;
+    }
+
+    html {
+        font-size: 18px;
+    }
+    body > .main {
+        margin-left: 7.5rem;
+        margin-right: 7.5rem;
+    }
+}
+@media all and (max-width: 1200px) {
+    pre {
+        font-size: 12px;
+        margin-left: var(--default-inset);
+    }
+
+    blockquote {
+        margin: 0.7em var(--default-inset);
+    }
+}
+@media all and (max-width: 840px) {
+    html {
+        font-size: 17px;
+    }
+
+    .title h1 {
+        text-align: center;
+    }
+
+    .title aside.date-short {
+        display: none;
+    }
+
+    .title aside.date-full {
+        display: none;
+    }
+
+    body > .main {
+        margin-left: 5.5rem;
+        margin-right: 5.5rem;
+    }
+}
+@media all and (max-width: 760px) {
+    aside.date-full {
+        display: none;
+    }
+
+    aside.date-short {
+        display: inline-block;
+    }
+
+    body > .main {
+        margin-left: 2.5rem;
+        margin-right: 2.5rem;
+    }
+}
+@media all and (max-width: 580px) {
+    aside.date-short {
+        display: none;
+    }
+
+    html {
+        font-size: 16px;
+    }
+
+    header .separator {
+        visibility: collapse;
+    }
+
+    body > .main {
+        margin: 0.7rem 1.5rem 0 1.5rem;
+    }
+}
+</style></head><body><div class="main"><header><span><span class="blog-name"><a href="../index.html">troubles.md</a></span> <span class="separator">-</span> <span class="tagline">Writing words and reading dwords</span></span></header><span></span><div class="post"><div class="title"><h1>WebAssembly Troubles part 4: Microwasm</h1><aside class="date-full">31 January, 2019</aside><aside class="date-short">31.01.19</aside></div><div class="content"><h2>WebAssembly Troubles part 4: Microwasm</h2><blockquote><h4>Preamble</h4><p>This is the final part of a 4-part miniseries on issues with WebAssembly and proposals to fix them. <a href="http://troubles.md/wasm-is-not-a-stack-machine/">Part 1 here</a>, <a href="http://troubles.md/why-do-we-need-the-relooper-algorithm-again/">part 2 here</a>, <a href="http://troubles.md/the-stack-is-not-the-stack/">part 3 here</a>. This article assumes some familiarity with virtual machines, compilers and WebAssembly, but I’ll try to link to relevant information where necessary so even if you’re not you can follow along. Also, this series is going to come off as if I dislike WebAssembly. I love WebAssembly! I wrote a <a href="http://troubles.md/why-wasm/">whole article about how great it is</a>! In fact, I love it so much that I want it to be the best that it can be, and this series is me working through my complaints with the design in the hope that some or all of these issues can be addressed soon, while the ink is still somewhat wet on the specification.</p></blockquote><p>Wasm is mostly a great spec, but it has some serious problems. I’ve detailed some of these issues in the previous three articles in this series, but it might seem like actually fixing these problems is untenable. Are you <em>really</em> going to deprecate locals? You’re going to deprecate <code>if</code>?</p><p>Well, turns out we don’t need to - we can get many of the desired benefits without dropping support for WebAssembly as it exists now.</p><h3>Introducing Microwasm</h3><p>Microwasm (working title) is Wasm-compatible format that can be efficiently consumed by runtimes and efficiently produced by compilers like LLVM. It’s currently implemented in the <a href="https://github.com/CraneStation/lightbeam/pull/18">Microwasm branch of Lightbeam</a>. The main goals are as follows:</p><ul><li><p>It should be relatively easy to implement each of the following three steps:</p><ul><li>Compiler IR->Microwasm;</li><li>Wasm->Microwasm;</li><li>Microwasm->Native.</li></ul></li><li>It shouldn’t sacrifice any of WebAssembly’s guarantees on safety or determinism.</li><li>We should maximise the amount of useful information transferred from the compiler producing the Microwasm to the runtime consuming the Microwasm.</li><li>We should optimise for performance when consuming a stream of Microwasm, unless it conflicts with the performance goals of optimising compilers.</li><li>Converting Wasm to Microwasm must be possible to do in a streaming way, you shouldn’t need to block on loading a whole Wasm function before you’re able to produce Microwasm.</li><li>Wasm to Microwasm and then that Microwasm to native code should be precisely as performant as compiling the Wasm to native directly.</li></ul><p>The last two points are the most important in my opinion. Basically what it means is that in the backends of <a href="https://github.com/CraneStation/wasmtime">Wasmtime</a> we can just wrap the incoming Wasm stream in a streaming converter to Microwasm and consume that instead. This means our backends have the benefit of consuming a simpler language while not producing worse code. This means that while Wasm can enjoy the same performance that it already does, if a compiler wants to make use of Microwasm’s abiliy to allow improved performance then it can. Writing a Microwasm backend for most compilers would be much, much less costly than writing a Wasm backend and so it’s not like we have to convince compiler developers to maintain two equally huge backend codebases.</p><p>So how does it compare to WebAssembly? Well here’s a simple function from the Wasm specification tests:</p><pre><code data-lang="lisp">(<span style="color: #4b69c6">module</span>
+  (<span style="color: #4b69c6">func</span> (<span style="color: #4b69c6">param</span> i32) (<span style="color: #4b69c6">param</span> i32) (<span style="color: #4b69c6">result</span> i32)
+    get_local <span style="color: #b60157">1</span>
+    (<span style="color: #d73948">block</span> (<span style="color: #4b69c6">result</span> i32)
+        get_local <span style="color: #b60157">0</span>
+        get_local <span style="color: #b60157">0</span>
+        br_if <span style="color: #b60157">0</span>
+        unreachable
+    )
+    i32.add
+  )
+)
+</code></pre><p>Here’s that Wasm compiled to Microwasm:</p><pre><code data-lang="asm"><span style="color: #d73948">.</span><span style="color: #4b69c6">fn_0</span>:
+  <span style="color: #4b69c6">pick</span> <span style="color: #b60157">0</span>
+  <span style="color: #4b69c6">pick</span> <span style="color: #b60157">2</span>
+  <span style="color: #4b69c6">pick</span> <span style="color: #b60157">3</span>
+  <span style="color: #4b69c6">br_if</span> <span style="color: #d73948">.</span><span style="color: #4b69c6">L1_end</span>, <span style="color: #d73948">.</span><span style="color: #4b69c6">L2</span>
+<span style="color: #d73948">.</span><span style="color: #4b69c6">L2</span>:
+  <span style="color: #4b69c6">unreachable</span>
+<span style="color: #d73948">.</span><span style="color: #4b69c6">L1_end</span>:
+  <span style="color: #4b69c6">i32.add</span>
+  <span style="color: #4b69c6">br</span> <span style="color: #d73948">.</span><span style="color: #4b69c6">return</span>
+</code></pre><p>The immediate differences in the format as it exists now:</p><ul><li>No locals - arguments are passed on the stack when entering a function and locals are emulated by adding <code>swap</code> and <code>pick</code> instructions. This essentially means that <code>set_local</code>, <code>get_local</code> and <code>tee_local</code> are a no-op at runtime, they only affect the virtual stack;</li><li>Only CFG control flow, no hierarchical blocks like Wasm - this was modelled on the <a href="https://github.com/WebAssembly/funclets/blob/master/proposals/funclets/Overview.md">Funclets</a> proposal for Wasm;</li><li>No block returns - only calling new blocks. Returning from a function is <code>br .return</code>. This isn’t proper <a href="https://en.wikipedia.org/wiki/Continuation-passing_style">continuation-passing style</a>, but it’s close enough that we get many of the simplicity benefits.</li></ul><p>There’s another change that I’m considering where instructions that need data from the environment (for example, instructions that access the linear memory or the “table section”) have the environment passed in as an explicit argument. This reduces the special-casing in much of the translation code, but more importantly it allows us to free the register that this environment pointer would be stored in when we’re executing blocks that don’t need it. This would be a complex change to implement in the Wasm->Microwasm step though, so we’d want to work out for sure how it affects complexity and performance before making a firm decision either way.</p><p>The difference in quality of the generated code is immediately visible. Here’s Lightbeam’s assembly output for the function above before the implementation of Microwasm. I should say that the implementation of the backend that produced this is significantly more complex than the implementation using Microwasm:</p><pre><code data-lang="asm">  <span style="color: #d73948">push</span> <span style="color: #d73948">rbp</span>
+  <span style="color: #d73948">mov</span>  <span style="color: #d73948">rbp</span>, <span style="color: #d73948">rsp</span>
+  <span style="color: #d73948">sub</span>  <span style="color: #d73948">rsp</span>, <span style="color: #b60157">0x18</span>
+  <span style="color: #d73948">mov</span>  <span style="color: #d73948">rax</span>, <span style="color: #d73948">rsi</span>
+  <span style="color: #d73948">test</span> <span style="color: #d73948">eax</span>, <span style="color: #d73948">eax</span>
+  <span style="color: #d73948">je</span>   <span style="color: #d73948">.</span><span style="color: #4b69c6">L0</span>
+  <span style="color: #d73948">mov</span>  <span style="color: #d73948">rax</span>, <span style="color: #d73948">rsi</span>
+  <span style="color: #d73948">jmp</span>  <span style="color: #d73948">.</span><span style="color: #4b69c6">L1</span>
+<span style="color: #d73948">.</span><span style="color: #4b69c6">L0</span>:
+  <span style="color: #d73948">jmp</span>  <span style="color: #d73948">.</span><span style="color: #4b69c6">L2</span>
+<span style="color: #d73948">.</span><span style="color: #4b69c6">L1</span>:
+  <span style="color: #d73948">add</span>  <span style="color: #d73948">eax</span>, <span style="color: #d73948">edx</span>
+  <span style="color: #d73948">mov</span>  <span style="color: #d73948">rsp</span>, <span style="color: #d73948">rbp</span>
+  <span style="color: #d73948">pop</span>  <span style="color: #d73948">rbp</span>
+  <span style="color: #d73948">ret</span>
+<span style="color: #d73948">.</span><span style="color: #4b69c6">L2</span>:
+  <span style="color: #d73948">ud2</span>
+</code></pre><p>Now here’s the output after Microwasm:</p><pre><code data-lang="asm">  <span style="color: #d73948">mov</span>  <span style="color: #d73948">rax</span>, <span style="color: #d73948">rsi</span>
+  <span style="color: #d73948">mov</span>  <span style="color: #d73948">rcx</span>, <span style="color: #d73948">rdx</span>
+  <span style="color: #d73948">mov</span>  <span style="color: #d73948">r8</span>, <span style="color: #d73948">rsi</span>
+  <span style="color: #d73948">test</span> <span style="color: #d73948">esi</span>, <span style="color: #d73948">esi</span>
+  <span style="color: #d73948">jne</span>  <span style="color: #d73948">.</span><span style="color: #4b69c6">L0</span>
+  <span style="color: #d73948">ud2</span>
+<span style="color: #d73948">.</span><span style="color: #4b69c6">L0</span>:
+  <span style="color: #d73948">add</span>  <span style="color: #d73948">ecx</span>, <span style="color: #d73948">eax</span>
+  <span style="color: #d73948">mov</span>  <span style="color: #d73948">rax</span>, <span style="color: #d73948">rcx</span>
+  <span style="color: #d73948">ret</span>
+</code></pre><p>You can see that the control flow is much less noisy and the register usage is much better. The main problem you can see is that some registers are unnecessarily duplicated. In this case this can’t be avoided. We don’t know if the <code>block</code> will be broken out of again by a later instruction when we’re translating the <code>br_if</code> - remember, this is a streaming compiler and so we’re translating instruction by instruction - so we must assume that all arguments to the <code>end</code> label are disjoint even if currently we’ve only encountered jumps to it that give arguments including duplicates. The precise limitations of a streaming compiler in comparison to a traditional compiler deserve an article of their own, but for now the only important thing to say is that an optimising compiler producing Microwasm directly would be able to avoid this issue.</p><p>For comparison, here’s the assembly produced by Firefox’s optimising WebAssembly compiler. You can see that it’s much the same as our streaming compiler can produce:</p><pre><code data-lang="asm">  <span style="color: #d73948">sub</span> <span style="color: #d73948">rsp</span>, <span style="color: #b60157">8</span>
+  <span style="color: #d73948">mov</span> <span style="color: #d73948">ecx</span>, <span style="color: #d73948">esi</span>
+  <span style="color: #d73948">test</span> <span style="color: #d73948">edi</span>, <span style="color: #d73948">edi</span>
+  <span style="color: #d73948">jne</span> <span style="color: #d73948">.</span><span style="color: #4b69c6">L0</span>
+  <span style="color: #74747c">;</span><span style="color: #74747c"> .fail defined elsewhere</span>
+  <span style="color: #d73948">jmp</span> <span style="color: #d73948">.</span><span style="color: #4b69c6">fail</span>
+<span style="color: #d73948">.</span><span style="color: #4b69c6">L0</span>:
+  <span style="color: #d73948">mov</span> <span style="color: #d73948">eax</span>, <span style="color: #d73948">ecx</span>
+  <span style="color: #d73948">add</span> <span style="color: #d73948">eax</span>, <span style="color: #d73948">edi</span>
+  <span style="color: #d73948">nop</span>
+  <span style="color: #d73948">add</span> <span style="color: #d73948">rsp</span>, <span style="color: #b60157">8</span>
+  <span style="color: #d73948">ret</span>
+</code></pre><h3>Why not just a normal MIR?</h3><p>The idea is that we can make changes that improve the simplicity of our codegen backend, keeping the format internal so we can see where the positives and pitfalls might lie. At this stage we’re compiling directly from Wasm so there’s an upper limit to how high-quality the code we generate can be; we’re still working with the same source information. It’s more like a streaming compiler-compatible MIR, except that it keeps all the security and sandboxing guarantees that WebAssembly has.</p><p>Once we’ve got a good idea of how we can get the most out of this format, we can allow frontends like LLVM to start generating it directly, which should give us an increase in performance with no extra work on our end. An LLVM Microwasm backend would be relatively simple to implement - where it differs from WebAssembly it’s simpler and where it’s similar to WebAssembly we can just reuse code from that backend.</p><h3>Why not just implement these changes in WebAssembly?</h3><p>Well, that would be ideal. Maintaining a format, even a mostly-compatible one, is not an easy task. Besides, although you could have users supply code in this format in standalone environments, it will never be reasonable for multiple browsers to support both WebAssembly and a similar-but-different fork of the format. For code on the web to get the same benefits, these changes would have to be rolled into WebAssembly. So why won’t they be?</p><p>Well, the main answer is that V8 (Chrome’s JavaScript and WebAssembly engine) cannot easily support arbitrary CFGs - which are one of the two most important components of this format. In order to consume this format, V8 would have to either change their internal representation of control flow or implement the Relooper/Stackifier algorithm in the engine itself, and V8’s engineers have made it very clear that they have no interest in doing so. IonMonkey, Mozilla’s WebAssembly engine used by Firefox, apparently has a few optimisation passes that assume that the control flow graph is reducible (which WebAssembly’s control flow currently always is, while the proposed control flow would not necessarily be), but it doesn’t seem like the changes are as significant as those required in V8 and the team appears more willing to make them. The likelihood of me convincing the Chrome team to change their mind is zero, and the Chrome team has members that hold lifetime positions on the committee in charge of WebAssembly’s design. They have veto power over any changes in the specification and they are likely to use it.</p><p>So instead we can circumvent this issue by implementing our own compatible format. Maybe the improved freedom that we have to change this format will allow us to better prototype ideas that we’d like to include into WebAssembly proper. We can only hope.</p><p>This is the final part, so I don’t have a “join us next time” sequel tease. If you want more, read some of the other articles that I’ve posted or <a href="https://www.youtube.com/watch?v=GyxTG1mucfs">go watch YouTube</a> or something. Either way, thanks for reading.</p></div></div></div></body></html>

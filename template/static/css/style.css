@@ -1,10 +1,17 @@
 @import url("https://fonts.googleapis.com/css?family=Merriweather|Montserrat|Source+Code+Pro");
 
+:root {
+    --default-inset: 11pt;
+    --expanded-inset: 16pt;
+}
+
 @media (prefers-color-scheme: dark) {
     :root {
         --background-color: #333;
         --header-font-color: #aaa;
         --font-color: #eee;
+        --pre-font-color: #ccc;
+        --date-color: #999;
     }
 }
 
@@ -13,6 +20,8 @@
         --background-color: #fff;
         --header-font-color: #777;
         --font-color: #000;
+        --pre-font-color: #333;
+        --date-color: #667;
     }
 }
 
@@ -40,6 +49,14 @@ h3 {
     font-size: 18px;
 }
 
+.post-link {
+    margin-bottom: 1em;
+}
+
+.post-link a {
+    color: var(--font-color);
+}
+
 header {
     font-family: "Source Code Pro";
     text-transform: uppercase;
@@ -58,47 +75,6 @@ header,
 header a {
     color: var(--header-font-color);
     text-decoration: none;
-}
-
-@media all {
-    html {
-        font-size: 18px;
-    }
-    body > * {
-        margin-left: 7.5rem;
-        margin-right: 7.5rem;
-    }
-}
-@media all and (max-width: 840px) {
-    html {
-        font-size: 17px;
-    }
-    body > * {
-        margin-left: 5.5rem;
-        margin-right: 5.5rem;
-    }
-    pre {
-        font-size: 12px;
-    }
-}
-@media all and (max-width: 760px) {
-    body > * {
-        margin-left: 2.5rem;
-        margin-right: 2.5rem;
-    }
-}
-@media all and (max-width: 580px) {
-    html {
-        font-size: 16px;
-    }
-
-    header .separator {
-        visibility: collapse;
-    }
-
-    body > * {
-        margin: 0.7rem 1.5rem 0 1.5rem;
-    }
 }
 
 /* reset */
@@ -139,11 +115,6 @@ body {
     font-feature-settings: "liga" 1;
 }
 
-div.content {
-    display: block;
-    padding: 1rem 0 1rem 0;
-}
-
 .spon {
     width: 100%;
     font-family: "Montserrat", sans-serif;
@@ -174,6 +145,7 @@ div.content {
 header {
     padding: 0.5rem 0 0.5rem 0;
     border-bottom: 0.1em solid black;
+    margin-bottom: 1.5rem;
 }
 
 .blog-name {
@@ -193,17 +165,25 @@ footer {
 }
 
 @media all and (max-width: 520px) {
-    div.content {
+    div.post {
         padding: 0;
     }
+}
+
+.title {
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.title aside {
+    width: 100%;
+    text-align: right;
 }
 
 h1 {
     display: block;
     font-size: 250%;
     line-height: 1.1;
-    margin-top: 1rem;
-    margin-bottom: 1.5rem;
     padding-top: 0.02em;
     -moz-hyphens: none;
     -webkit-hyphens: none;
@@ -217,10 +197,30 @@ h2 {
     font-size: 170%;
 }
 
+.post-link:first-of-type {
+    margin-top: 1rem;
+}
+
+.post-link {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.post-link a {
+    line-height: 1.6;
+    padding-right: 1.5rem;
+}
+
 aside {
     font-size: 0.84rem;
+    align-self: center;
     line-height: 1.4;
-    color: #667;
+    color: var(--date-color);
+    text-align: right;
+    margin-right: 1em;
+    text-wrap-mode: nowrap;
 }
 
 aside em {
@@ -299,11 +299,12 @@ a:hover {
 }
 
 pre {
-    margin-left: 0.7em;
+    margin-left: var(--expanded-inset);
+    margin-right: var(--default-inset);
+    max-width: 70ch;
     padding-left: 1.4em;
-    padding-right: 15px;
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
+    padding-top: 1em;
+    padding-bottom: 1em;
     margin-bottom: 20px;
     background-color: #f7f7f7;
     overflow: auto;
@@ -312,11 +313,7 @@ pre {
     border-left: 3.5px solid #bbb;
 }
 
-code .ln {
-    margin-right: 0.5em;
-}
-
-/*code {
+code {
     font-family: "Source Code Pro", monospace;
     display: inline-block;
     max-width: 100%;
@@ -328,16 +325,16 @@ code .ln {
     -o-font-feature-settings: "liga" 0;
     -ms-font-feature-settings: "liga" 0;
     font-feature-settings: "liga" 0;
-}*/
+}
 
-/*h1 > code,
+h1 > code,
 h2 > code,
 h3 > code,
 h4 > code,
 p > code {
     text-transform: none;
     color: #434f54;
-}*/
+}
 
 figcaption {
     font-weight: 400;
@@ -352,10 +349,91 @@ figcaption {
 
 blockquote {
     border-left: 3.5px solid #0594cb;
-    margin: 0.7em 10px;
-    padding: 0.7em 20px;
+    margin: 10px var(--expanded-inset);
+    padding: var(--default-inset) 20px;
 }
 
 blockquote p {
     display: inline;
+}
+
+@media all {
+    aside.date-full {
+        display: inline-block;
+    }
+
+    aside.date-short {
+        display: none;
+    }
+
+    html {
+        font-size: 18px;
+    }
+    body > .main {
+        margin-left: 7.5rem;
+        margin-right: 7.5rem;
+    }
+}
+@media all and (max-width: 1200px) {
+    pre {
+        font-size: 12px;
+        margin-left: var(--default-inset);
+    }
+
+    blockquote {
+        margin: 0.7em var(--default-inset);
+    }
+}
+@media all and (max-width: 840px) {
+    html {
+        font-size: 17px;
+    }
+
+    .title h1 {
+        text-align: center;
+    }
+
+    .title aside.date-short {
+        display: none;
+    }
+
+    .title aside.date-full {
+        display: none;
+    }
+
+    body > .main {
+        margin-left: 5.5rem;
+        margin-right: 5.5rem;
+    }
+}
+@media all and (max-width: 760px) {
+    aside.date-full {
+        display: none;
+    }
+
+    aside.date-short {
+        display: inline-block;
+    }
+
+    body > .main {
+        margin-left: 2.5rem;
+        margin-right: 2.5rem;
+    }
+}
+@media all and (max-width: 580px) {
+    aside.date-short {
+        display: none;
+    }
+
+    html {
+        font-size: 16px;
+    }
+
+    header .separator {
+        visibility: collapse;
+    }
+
+    body > .main {
+        margin: 0.7rem 1.5rem 0 1.5rem;
+    }
 }

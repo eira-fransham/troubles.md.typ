@@ -299,6 +299,7 @@ header a:hover {
 
 .tagline {
     justify-self: end;
+    text-align: right;
     font-weight: 100;
 }
 

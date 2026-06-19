@@ -591,6 +591,12 @@ blockquote p {
     }
 }
 @media all and (max-width: 760px) {
+    header {
+        --inset: var(--default-inset);
+        margin-left: calc(-1 * var(--inset));
+        margin-right: calc(-1 * var(--inset));
+    }
+
     .title h1 {
         font-size: 24pt;
     }

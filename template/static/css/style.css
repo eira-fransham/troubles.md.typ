@@ -607,6 +607,26 @@ blockquote p {
     }
 }
 @media all and (max-width: 580px) {
+    blockquote {
+        margin: 10px 0;
+    }
+
+    pre {
+        margin-left: 0;
+        margin-right: 0;
+        padding-left: 8pt;
+    }
+
+    li {
+        padding-left: 0;
+        margin-left: var(--default-inset);
+        margin-bottom: 0.5em;
+    }
+
+    li ul {
+        padding-left: 0;
+    }
+
     .title h1 {
         font-size: 20pt;
     }

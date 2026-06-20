@@ -61,7 +61,7 @@
       }
       #html.elem("title", page-title)
       // Typst currently can't emit an empty style tag.
-      #html.elem("style", attrs: (rel: "stylesheet", type: "text/css"), read("static/css/style.css"))
+      #html.elem("style", attrs: (rel: "stylesheet", type: "text/css"), read("static/css/index.css"))
     ]
     #html.body[
       #div("main")[

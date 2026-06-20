@@ -21,6 +21,16 @@
 )
 
 #asset(
+  "css/style.css",
+  read("template/static/css/style.css"),
+)
+
+#asset(
+  "css/drafting-mono.css",
+  read("template/static/css/drafting-mono.css"),
+)
+
+#asset(
   "github-logo.svg",
   read("template/static/images/github-logo.svg"),
 )
@@ -34,3 +44,34 @@
   "CNAME",
   read("static/CNAME"),
 )
+
+#asset("/fonts/DraftingMono-ExtraLight.woff2", read(
+  "template/static/fonts/DraftingMono-ExtraLight.woff2",
+  encoding: none,
+))
+#asset("/fonts/DraftingMono-Light.woff2", read("template/static/fonts/DraftingMono-Light.woff2", encoding: none))
+#asset("/fonts/DraftingMono-Medium.woff2", read("template/static/fonts/DraftingMono-Medium.woff2", encoding: none))
+#asset("/fonts/DraftingMono-Regular.woff2", read("template/static/fonts/DraftingMono-Regular.woff2", encoding: none))
+#asset("/fonts/DraftingMono-SemiBold.woff2", read("template/static/fonts/DraftingMono-SemiBold.woff2", encoding: none))
+#asset("/fonts/DraftingMono-Bold.woff2", read("template/static/fonts/DraftingMono-Bold.woff2", encoding: none))
+#asset("/fonts/DraftingMono-ExtraLightItalic.woff2", read(
+  "template/static/fonts/DraftingMono-ExtraLightItalic.woff2",
+  encoding: none,
+))
+#asset("/fonts/DraftingMono-LightItalic.woff2", read(
+  "template/static/fonts/DraftingMono-LightItalic.woff2",
+  encoding: none,
+))
+#asset("/fonts/DraftingMono-MediumItalic.woff2", read(
+  "template/static/fonts/DraftingMono-MediumItalic.woff2",
+  encoding: none,
+))
+#asset("/fonts/DraftingMono-Italic.woff2", read("template/static/fonts/DraftingMono-Italic.woff2", encoding: none))
+#asset("/fonts/DraftingMono-SemiBoldItalic.woff2", read(
+  "template/static/fonts/DraftingMono-SemiBoldItalic.woff2",
+  encoding: none,
+))
+#asset("/fonts/DraftingMono-BoldItalic.woff2", read(
+  "template/static/fonts/DraftingMono-BoldItalic.woff2",
+  encoding: none,
+))

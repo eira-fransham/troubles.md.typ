@@ -2,7 +2,7 @@
 //
 // To compile the static site, run `typst compile --features html,bundle --format bundle bundle.typ`
 
-#import "config.typ": articles, blog-title, default-tagline
+#import "config.typ": articles, atom-feed, blog-title, default-tagline, feed-url
 #import "template/mod.typ": favicon, index, main-image
 
 #for article in articles [
@@ -13,6 +13,7 @@
   articles: articles,
   blog-title: blog-title,
   tagline: default-tagline,
+  feed-url: feed-url,
 )) <index>
 
 #asset(
@@ -43,6 +44,10 @@
 #asset(
   "CNAME",
   read("static/CNAME"),
+)
+#asset(
+  "feed.xml",
+  atom-feed,
 )
 
 #asset("/fonts/DraftingMono-ExtraLight.woff2", read(

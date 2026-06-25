@@ -47,6 +47,7 @@
   blog-title: none,
   tagline: none,
   meta: none,
+  feed-url: none,
   body,
 ) = [
   #let meta = if meta == none {
@@ -60,6 +61,14 @@
         html.elem("meta", attrs: meta-elem)
       }
       #html.elem("title", page-title)
+      #if feed-url != none {
+        html.elem("link", attrs: (
+          rel: "alternate",
+          type: "application/atom+xml",
+          title: blog-title,
+          href: feed-url,
+        ))
+      }
       // Typst currently can't emit an empty style tag.
       #html.elem("style", attrs: (rel: "stylesheet", type: "text/css"), read("static/css/index.css"))
     ]
@@ -106,6 +115,7 @@
   post-date: none,
   blog-title: none,
   tagline: none,
+  feed-url: none,
   syntax-theme: (
     dark: none,
     light: none,
@@ -147,6 +157,7 @@
     blog-title: blog-title,
     meta: ((name: "og:type", content: "article"), .._html_meta(post-title)),
     tagline: tagline,
+    feed-url: feed-url,
   )
 
   #let post-title = if post-title != none { post-title } else { body.at("title", default: none) }
@@ -168,11 +179,12 @@
   ])
 ]
 
-#let index(articles: (), blog-title: none, tagline: none) = [
+#let index(articles: (), blog-title: none, tagline: none, feed-url: none) = [
   #show: _main.with(
     page-title: blog-title,
     blog-title: blog-title,
     tagline: tagline,
+    feed-url: feed-url,
   )
 
   #title[Posts]
